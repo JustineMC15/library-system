@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>API test</title></head>
+<body>
+  <h1>Books from the database</h1>
+  <ul id="list">Loading...</ul>
+  <script>
+    fetch("/api/books")
+      .then(r => r.json())
+      .then(books => {
+        document.getElementById("list").innerHTML =
+          books.map(b => "<li>" + b.BookTitle + " by " + b.BookAuthor + " (" + b.BookType + ")</li>").join("");
+      })
+      .catch(() => { document.getElementById("list").textContent = "Could not reach the server."; });
+  </script>
+</body>
+</html>

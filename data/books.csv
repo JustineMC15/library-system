@@ -1,0 +1,4 @@
+BookID,BookISBN,BookTitle,BookAuthor,PublishYear,BookType,DigitalLink
+CIR QA 76.73 C15 W463 1993,0-8053-5440-9,Data Structures and Algorithm Analysis in C,Mark Allen Weiss,1993,Physical,
+FIL QA 76.7 L926,978-981-4416-40-5,Programming Languages,Kenneth C. Louden; Kenneth A. Lambert,2012,Physical,
+QA 76.76.063 K96,978-93-5014-589-0,Operating Systems,Naveen Kumari,2016,Physical,
