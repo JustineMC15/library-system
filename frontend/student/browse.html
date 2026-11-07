@@ -3,11 +3,41 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Browse Books</title>
+  <title>Browse Books · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Browse Books</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div id="shell" data-role="student"></div>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Browse Books</h1>
+        <p id="count" aria-live="polite">Loading the catalog…</p>
+      </div>
+    </div>
+
+    <form id="filters" class="filters" role="search" style="margin-bottom:24px">
+      <div class="field">
+        <label for="search" class="visually-hidden">Search books</label>
+        <input id="search" type="search" placeholder="Search by title, author, or ISBN (press / to jump here)">
+      </div>
+      <div class="segmented" id="type" role="group" aria-label="Filter books">
+        <button type="button" data-type="" aria-pressed="true">All</button>
+        <button type="button" data-type="Physical" aria-pressed="false">Physical</button>
+        <button type="button" data-type="Digital" aria-pressed="false">Digital</button>
+        <button type="button" id="available" aria-pressed="false">Available Only</button>
+        <button type="button" class="hidden" id="clear">Clear</button>
+      </div>
+    </form>
+
+    <div id="alert" class="alert hidden"></div>
+    <div id="grid" class="book-grid"></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/browse.js"></script>
 </body>
 </html>

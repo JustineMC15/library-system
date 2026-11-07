@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Borrowed Books · OLOPS College Library</title>
+  <link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+  <div id="shell" data-role="student"></div>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>My Borrowed Books</h1>
+        <p id="summary" aria-live="polite">Loading your books…</p>
+      </div>
+      <a class="btn" href="browse.html">Borrow a book</a>
+    </div>
+
+    <div id="alert" class="alert hidden"></div>
+
+    <section class="card" aria-label="My books">
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-books" aria-selected="true" class="active">Borrowed</button>
+        <button type="button" role="tab" id="tab-denied" aria-selected="false">Denied <span class="count" id="denied-count"></span></button>
+      </div>
+
+      <div id="panel-books" role="tabpanel" aria-labelledby="tab-books">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Type</th><th>Borrowed</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="loans"><tr><td colspan="6" class="empty loading">Loading your books…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="panel-denied" role="tabpanel" aria-labelledby="tab-denied" hidden>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Requested</th><th>Reasons</th><th></th></tr></thead>
+            <tbody id="denied"><tr><td colspan="4" class="empty loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <p class="muted">After Renew or Return is clicked, a librarian must approve it.</p>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/borrowed.js"></script>
+</body>
+</html>

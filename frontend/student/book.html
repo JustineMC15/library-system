@@ -3,11 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Details</title>
+  <title>Book Details · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Book Details</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div id="shell" data-role="student"></div>
+
+  <main>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="browse.html">Browse Books</a> / <span id="crumb" aria-current="page">Book</span>
+    </nav>
+    <div id="alert" class="alert hidden"></div>
+    <div id="book" aria-live="polite"><p class="empty loading">Loading the book…</p></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/book.js"></script>
 </body>
 </html>

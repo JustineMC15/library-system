@@ -3,11 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Catalog</title>
+  <title>Book Catalog · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Book Catalog</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
+
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Book Catalog</h1>
+          <p>Read-only list of all books in the library.</p>
+          <p class="muted" id="count" aria-live="polite">Loading…</p>
+        </div>
+      </div>
+
+      <form id="filters" class="filters" role="search" style="margin-bottom:24px">
+        <div class="field">
+          <label for="search" class="visually-hidden">Search the catalog</label>
+          <input id="search" type="search" placeholder="Search by title, author, ISBN, or Book ID">
+        </div>
+        <div class="field">
+          <div class="segmented" id="type" role="group" aria-label="Filter by type">
+            <button type="button" data-type="" class="active" aria-pressed="true">All</button>
+            <button type="button" data-type="Physical" aria-pressed="false">Physical</button>
+            <button type="button" data-type="Digital" aria-pressed="false">Digital</button>
+          </div>
+        </div>
+      </form>
+
+      <section class="card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book ID</th><th>Title</th><th>ISBN</th><th>Year</th><th>Type</th><th>Status</th></tr></thead>
+            <tbody id="books"><tr><td colspan="6" class="empty loading">Loading the catalog…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/librarian/catalog.js"></script>
 </body>
 </html>

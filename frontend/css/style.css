@@ -1,22 +1,9 @@
-/* Colors and fonts from the design brief. Build every page on these. */
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
-
-:root {
-  --navy: #1E3A5F;
-  --blue: #3B82F6;
-  --bg: #F8FAFC;
-  --white: #FFFFFF;
-  --text: #0F172A;
-  --muted: #64748B;
-  --success: #16A34A;
-  --warning: #F59E0B;
-  --error: #DC2626;
-}
-
-body {
-  margin: 0;
-  font-family: "Poppins", sans-serif;
-  font-size: 14px;
-  color: var(--text);
-  background: var(--bg);
-}
+/* Every page links only this file. It loads the others in order, so later files win ties.
+   Colors and fonts come from the design brief (docs/design-brief.pdf).
+   Text sizes: only 14, 16 and 20px. Spacing: multiples of 8px.
+   Corners: 8px on inputs and buttons, 12px on cards. */
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap");
+@import url("base.css");        /* tokens, type, page frame, forms, buttons */
+@import url("components.css");  /* badges, tables, cards, popups, calendar, library motif */
+@import url("motion.css");      /* transitions and animations */
+@import url("responsive.css");  /* tablet and phone layouts (last, so it overrides) */

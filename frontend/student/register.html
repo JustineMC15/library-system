@@ -3,11 +3,83 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Register</title>
+  <title>Register · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-  <h1>Student Register</h1>
-  <!-- Build this page here, following the Figma. -->
+<body class="auth-body">
+  <div id="site-bar"></div>
+  <div class="auth-page">
+    <main class="auth-card wide">
+      <h1>Create your library account</h1>
+      <p class="sub">Use the details on your school ID. You'll show the same ID when you pick up a book.</p>
+
+      <div id="alert" class="alert hidden"></div>
+
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="StudentID">Student ID</label>
+          <input id="StudentID" placeholder="25A-0058" autocomplete="username" required aria-describedby="sid-help">
+          <p class="help" id="sid-help">Printed on your school ID card. You'll log in with it.</p>
+        </div>
+
+        <div class="row-3">
+          <div class="field">
+            <label for="LastName">Last name</label>
+            <input id="LastName" autocomplete="family-name" required>
+          </div>
+          <div class="field">
+            <label for="FirstName">First name</label>
+            <input id="FirstName" autocomplete="given-name" required>
+          </div>
+          <div class="field">
+            <label for="MiddleInitial">M.I. <span class="hint">(optional)</span></label>
+            <input id="MiddleInitial" maxlength="1" autocomplete="additional-name" autocapitalize="characters" pattern="[A-Za-zÑñ]">
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label-text" id="contact-label">Contact numbers <span class="hint">(optional)</span></span>
+          <p class="help" style="margin:0 0 8px">The library uses this to reach you about overdue books. Add as many as you like.</p>
+          <div id="contacts" role="group" aria-labelledby="contact-label"></div>
+          <button type="button" class="btn small secondary" id="add-contact">Add another number</button>
+        </div>
+
+        <div class="field">
+          <label for="Address">Address <span class="hint">(optional)</span></label>
+          <input id="Address" autocomplete="street-address">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="DateOfBirth">Date of birth</label>
+            <input id="DateOfBirth" type="date" required>
+          </div>
+          <div class="field">
+            <label for="Age">Age <span class="hint">(from date of birth)</span></label>
+            <input id="Age" readonly tabindex="-1" placeholder="Fills in automatically">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="Password">Password</label>
+          <input id="Password" type="password" autocomplete="new-password" required aria-describedby="pw-help">
+          <p class="help" id="pw-help">At least 6 characters.</p>
+        </div>
+        <div class="field">
+          <label for="Confirm">Type the password again</label>
+          <input id="Confirm" type="password" autocomplete="new-password" required>
+        </div>
+
+        <button class="btn block" type="submit">Create account</button>
+      </form>
+
+      <p class="switch">Already registered? <a href="login.html">Log in</a></p>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/register.js"></script>
 </body>
 </html>
