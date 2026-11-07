@@ -4,7 +4,7 @@ import clock
 from borrowing import request_borrow
 from db import get_db
 from decorators import student_required
-from routes.helpers import CHECK_ORDER, json_body
+from routes.helpers import CHECK_ORDER, json_body, pick
 
 borrow_bp = Blueprint("borrow", __name__, url_prefix="/api")
 
@@ -13,7 +13,7 @@ borrow_bp = Blueprint("borrow", __name__, url_prefix="/api")
 @student_required
 def borrow():
     """A student asks to borrow a book. It is saved as Pending and waits for a librarian."""
-    book_id = json_body().get("BookID")
+    book_id = pick(json_body(), "BookID", "book_id")
     if not isinstance(book_id, str) or not book_id.strip():
         return jsonify(ok=False, error="BookID is required"), 400
 

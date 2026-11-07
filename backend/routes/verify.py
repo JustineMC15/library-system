@@ -14,23 +14,45 @@ from calendar_db import load_nonworking
 from checks import run_checks
 from db import get_db
 from decorators import librarian_required
+from loans import get_due_date
+from renewals import approve_renew, deny_renew
+from returns import approve_return, deny_return
 from routes.helpers import CHECK_ORDER, json_body
 
 verify_bp = Blueprint("verify", __name__, url_prefix="/api/librarian")
 
 REQUEST_TYPES = ("borrow", "renew", "return")
 
-# These routes answer 501 until renew and return are created
+# The Verify page's details (request_detail) only exist for borrow requests.
+# Renewals are decided in a popup and returns on the Process Return page.
 NOT_READY = ({"ok": False, "error": "Only borrow requests are supported so far"}, 501)
+
+EXISTS_SQL = {
+    "borrow": "SELECT 1 FROM Borrow WHERE BorrowID = ?",
+    "renew": "SELECT 1 FROM Renew WHERE RenewID = ?",
+    "return": 'SELECT 1 FROM "Return" WHERE ReturnID = ?',
+}
+
+
+def _check_known(req_type):
+    """None when the type is one of borrow, renew, return, otherwise the (body, status) to send back."""
+    if req_type not in REQUEST_TYPES:
+        return {"ok": False, "error": "Unknown request type"}, 404
+    return None
 
 
 def _check_type(req_type):
-    """None when the type can be handled here, otherwise the (body, status) to send back."""
-    if req_type not in REQUEST_TYPES:
-        return {"ok": False, "error": "Unknown request type"}, 404
+    """None when the type can be handled by request_detail, otherwise the (body, status) to send back."""
+    unknown = _check_known(req_type)
+    if unknown:
+        return unknown
     if req_type != "borrow":
         return NOT_READY
     return None
+
+
+def _request_exists(conn, req_type, req_id):
+    return conn.execute(EXISTS_SQL[req_type], (req_id,)).fetchone() is not None
 
 
 def _full_name(row):
@@ -46,7 +68,10 @@ def _age(date_of_birth: str, today: date) -> int:
 @verify_bp.get("/queue")
 @librarian_required
 def queue():
-    """Every pending request, oldest first. earlier_pending = how many requests are ahead of it."""
+    """Every pending request, oldest first. earlier_pending = how many requests are ahead of it.
+
+    Renew and return rows also carry DueDate (the renewal popup shows it).
+    """
     type_filter = request.args.get("type", "").strip() or None
     if type_filter is not None and type_filter not in REQUEST_TYPES:
         return jsonify(ok=False, error="Unknown request type"), 400
@@ -59,6 +84,10 @@ def queue():
             for r in conn.execute("SELECT StudentID, LastName, FirstName, MiddleInitial FROM Student")
         }
         titles = {r["BookID"]: r["BookTitle"] for r in conn.execute("SELECT BookID, BookTitle FROM Book")}
+        nonworking = load_nonworking(conn)
+        for item in full_queue:
+            if item["type"] in ("renew", "return"):
+                item["DueDate"] = get_due_date(conn, item["BorrowID"], nonworking).isoformat()
     finally:
         conn.close()
 
@@ -151,27 +180,36 @@ def request_detail(req_type, req_id):
     )
 
 
-def _borrow_exists(conn, borrow_id):
-    return conn.execute("SELECT 1 FROM Borrow WHERE BorrowID = ?", (borrow_id,)).fetchone() is not None
-
-
 @verify_bp.post("/<req_type>/<int:req_id>/approve")
 @librarian_required
 def approve(req_type, req_id):
-    """Approve a pending request. The server re-runs the checks, so a stale page cannot slip one through."""
-    blocked = _check_type(req_type)
-    if blocked:
-        return jsonify(blocked[0]), blocked[1]
+    """Approve a pending borrow, renew or return.
 
-    student_id_ok = json_body().get("student_id_ok") is True   # only a real true counts
+    The server re-runs the rules, so a stale page cannot slip anything through:
+    borrow re-runs the five checks, renew re-checks that the book is not overdue,
+    return works out the fine (it stops at the day the return was requested).
+    """
+    unknown = _check_known(req_type)
+    if unknown:
+        return jsonify(unknown[0]), unknown[1]
 
     conn = get_db()
     try:
-        if not _borrow_exists(conn, req_id):
+        if not _request_exists(conn, req_type, req_id):
             return jsonify(ok=False, error="Request not found"), 404
-        result = approve_borrow(
-            conn, req_id, session["user_id"], clock.now().date(), load_nonworking(conn), student_id_ok
-        )
+
+        librarian_id = session["user_id"]
+        today = clock.now().date()
+        nonworking = load_nonworking(conn)
+
+        if req_type == "borrow":
+            student_id_ok = json_body().get("student_id_ok") is True   # only a real true counts
+            result = approve_borrow(conn, req_id, librarian_id, today, nonworking, student_id_ok)
+        elif req_type == "renew":
+            result = approve_renew(conn, req_id, librarian_id, today, nonworking)
+        else:
+            result = approve_return(conn, req_id, librarian_id, nonworking)
+
         if not result["ok"]:
             return jsonify(result), 409
         conn.commit()
@@ -183,24 +221,36 @@ def approve(req_type, req_id):
 @verify_bp.post("/<req_type>/<int:req_id>/deny")
 @librarian_required
 def deny(req_type, req_id):
-    """Deny a pending request. Body: {"reasons": [...]}, one saved row per reason."""
-    blocked = _check_type(req_type)
-    if blocked:
-        return jsonify(blocked[0]), blocked[1]
+    """Deny a pending request. A borrow needs {"reasons": [...]} (one saved row per reason).
+    Renew and return need no body."""
+    unknown = _check_known(req_type)
+    if unknown:
+        return jsonify(unknown[0]), unknown[1]
 
-    reasons = json_body().get("reasons")
-    if not isinstance(reasons, list) or not reasons:
-        return jsonify(ok=False, error="At least one denial reason is required"), 400
-    if any(not isinstance(r, str) or r not in ALLOWED_DENY_REASONS for r in reasons):
-        return jsonify(ok=False, error="Invalid denial reason"), 400
+    reasons = None
+    if req_type == "borrow":
+        reasons = json_body().get("reasons")
+        if not isinstance(reasons, list) or not reasons:
+            return jsonify(ok=False, error="At least one denial reason is required"), 400
+        if any(not isinstance(r, str) or r not in ALLOWED_DENY_REASONS for r in reasons):
+            return jsonify(ok=False, error="Invalid denial reason"), 400
 
     conn = get_db()
     try:
-        if not _borrow_exists(conn, req_id):
+        if not _request_exists(conn, req_type, req_id):
             return jsonify(ok=False, error="Request not found"), 404
-        result = deny_borrow(conn, req_id, session["user_id"], reasons)
+
+        librarian_id = session["user_id"]
+        if req_type == "borrow":
+            result = deny_borrow(conn, req_id, librarian_id, reasons)
+        elif req_type == "renew":
+            result = deny_renew(conn, req_id, librarian_id)
+        else:
+            result = deny_return(conn, req_id, librarian_id)
+
         if not result["ok"]:
             return jsonify(result), 409
+        conn.commit()
         return jsonify(result)
     finally:
         conn.close()

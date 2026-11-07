@@ -52,12 +52,18 @@ def request_borrow(conn, student_id, book_id, now):
 
 
 def get_queue(conn, type_filter=None):
-    """Return all pending borrow, renewal, and return requests."""
+    """Return all pending borrow, renewal, and return requests, oldest first.
+
+    Every row has the same keys: type, request_id (the BorrowID, RenewID or ReturnID),
+    BorrowID, StudentID, BookID, RequestedAt. Renewals and returns only count while
+    their book is still Borrowed.
+    """
 
     query = """
         SELECT
             'borrow' AS type,
             BorrowID AS request_id,
+            BorrowID,
             StudentID,
             BookID,
             RequestedAt
@@ -69,24 +75,28 @@ def get_queue(conn, type_filter=None):
         SELECT
             'renew' AS type,
             r.RenewID AS request_id,
+            b.BorrowID,
             b.StudentID,
             b.BookID,
             r.RequestedAt
         FROM Renew AS r
         JOIN Borrow AS b ON b.BorrowID = r.BorrowID
         WHERE r.Status = 'Pending'
+          AND b.Status = 'Borrowed'
 
         UNION ALL
 
         SELECT
             'return' AS type,
             r.ReturnID AS request_id,
+            b.BorrowID,
             b.StudentID,
             b.BookID,
             r.RequestedAt
         FROM "Return" AS r
         JOIN Borrow AS b ON b.BorrowID = r.BorrowID
         WHERE r.Status = 'Pending'
+          AND b.Status = 'Borrowed'
     """
 
     params = []
