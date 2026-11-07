@@ -3,63 +3,70 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Dashboard</title>
+  <title>Dashboard · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <span class="brand">Library System</span>
-    <nav>
-      <a href="dashboard.html" class="active">My books</a>
-      <a href="browse.html">Browse</a>
-      <a href="denied.html">Denied requests</a>
-    </nav>
-    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
-  </header>
+  <div id="shell" data-role="student"></div>
 
   <main>
     <div class="page-head">
       <div>
-        <h1>My books</h1>
-        <p class="muted">Loans last 7 working days. You can renew a loan up to 3 times.</p>
+        <h1 id="hello">Your library</h1>
+        <p class="muted">Loans run 7 working days. Sundays and marked holidays don't count.</p>
       </div>
-      <a class="btn" href="browse.html">Borrow a book</a>
     </div>
 
-    <div id="alert" class="alert hidden" role="alert"></div>
-
-    <div class="stats">
-      <div class="stat"><div class="label">Borrowed</div><div class="value" id="stat-borrowed">–</div></div>
-      <div class="stat"><div class="label">Waiting for approval</div><div class="value" id="stat-pending">–</div></div>
-      <div class="stat"><div class="label">Next due date</div><div class="value" id="stat-due">–</div></div>
+    <div class="stats" aria-live="polite">
+      <div class="stat" id="stat-borrowed"><div class="label">Books borrowed</div><div class="value">Loading…</div></div>
+      <div class="stat" id="stat-due"><div class="label">Due soon</div><div class="value">Loading…</div></div>
+      <div class="stat" id="stat-status"><div class="label">Account status</div><div class="value">Loading…</div></div>
     </div>
 
-    <section class="card">
-      <h2>Current and pending loans</h2>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr><th>Book</th><th>Status</th><th>Borrowed</th><th>Due</th><th>Renewals</th><th></th></tr>
-          </thead>
-          <tbody id="loans">
-            <tr><td colspan="6" class="empty">Loading…</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
+    <div class="grid-2" style="margin-bottom:24px">
+      <a class="entry" href="browse.html">
+        <span class="title">Browse Books</span>
+        <span class="sub">Search the catalog and request a book.</span>
+      </a>
+      <a class="entry light" href="#borrowed">
+        <span class="title">My Borrowed Books</span>
+        <span class="sub">Due dates, renewals and returns.</span>
+      </a>
+    </div>
 
-    <section class="card">
-      <h2>Returned</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Book</th><th>Borrowed</th><th>Status</th></tr></thead>
-          <tbody id="history"><tr><td colspan="3" class="empty">Loading…</td></tr></tbody>
-        </table>
+    <section class="card" id="borrowed" aria-labelledby="borrowed-title">
+      <div class="card-head">
+        <h2 id="borrowed-title">My Borrowed Books</h2>
+      </div>
+      <div id="alert" class="alert hidden"></div>
+      <div class="tabs" role="tablist">
+        <button type="button" role="tab" id="tab-books" aria-selected="true" class="active">Borrowed</button>
+        <button type="button" role="tab" id="tab-denied" aria-selected="false">Denied <span class="count" id="denied-count"></span></button>
+      </div>
+
+      <div id="panel-books" role="tabpanel" aria-labelledby="tab-books">
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="loans"><tr><td colspan="5" class="empty">Loading your books…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="panel-denied" role="tabpanel" aria-labelledby="tab-denied" hidden>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Book</th><th>Requested</th><th>Reasons</th><th></th></tr></thead>
+            <tbody id="denied"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </main>
 
   <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
   <script src="../js/student/dashboard.js"></script>
 </body>
 </html>

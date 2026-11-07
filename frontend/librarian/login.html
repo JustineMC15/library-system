@@ -3,36 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Librarian Login</title>
+  <title>Librarian Login · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div class="auth-page">
-    <div class="auth-card">
-      <div class="logo">LIB</div>
-      <h1>Librarian Login</h1>
-      <p class="sub">Sign in to manage requests and the catalog.</p>
+    <main class="auth-card">
+      <div id="logo"></div>
+      <h1>Librarian login</h1>
+      <p class="sub">Review requests, verify students and process returns.</p>
 
-      <div id="alert" class="alert hidden" role="alert"></div>
+      <div id="alert" class="alert hidden"></div>
 
-      <form id="form" novalidate>
+      <form id="form" data-role="librarian" novalidate>
         <div class="field">
-          <label for="id">Librarian ID</label>
-          <input id="id" name="id" placeholder="L-001" autocomplete="username" required>
+          <label for="LibrarianID">Librarian ID</label>
+          <input id="LibrarianID" name="LibrarianID" placeholder="L-001" autocomplete="username" required>
         </div>
         <div class="field">
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <label for="Password">Password</label>
+          <input id="Password" name="Password" type="password" autocomplete="current-password" required>
         </div>
         <button class="btn block" type="submit">Log in</button>
       </form>
 
       <p class="switch">New librarian accounts are added by a logged-in librarian.</p>
-      <p class="switch"><a href="../student/login.html">Student login</a></p>
-    </div>
+      <p class="switch">Student? <a href="../student/login.html">Student login</a></p>
+    </main>
   </div>
 
   <script src="../js/api.js"></script>
-  <script src="../js/librarian/login.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/login.js"></script>
 </body>
 </html>

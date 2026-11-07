@@ -3,58 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Returns and Fines</title>
+  <title>Process Return · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <span class="brand">Library System</span>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="verify.html">Requests</a>
-      <a href="return.html" class="active">Returns &amp; fines</a>
-      <a href="catalog.html">Catalog</a>
-      <a href="nonworking.html">Non-working days</a>
-      <a href="register.html">Add librarian</a>
-    </nav>
-    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
-  </header>
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
 
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Returns &amp; fines</h1>
-        <p class="muted">Approve a return once the book is back on the desk. Late books cost ₱2 per working day.</p>
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Process Return</h1>
+          <p class="muted">Pick the student and the book, record the return date, then confirm.</p>
+        </div>
       </div>
-    </div>
 
-    <div id="alert" class="alert hidden" role="alert"></div>
+      <div id="alert" class="alert hidden"></div>
 
-    <section class="card">
-      <h2>Waiting to be returned</h2>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Book</th><th>Due</th><th>Requested</th><th></th></tr></thead>
-          <tbody id="returns"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
+      <div class="grid-side">
+        <form id="form" class="card" novalidate>
+          <div class="field">
+            <label for="StudentID">Student ID</label>
+            <div class="inline">
+              <input id="StudentID" placeholder="25A-0058" autocomplete="off">
+              <button type="button" class="btn secondary" id="find">Find</button>
+            </div>
+            <p class="muted" id="student-name" style="margin-top:8px"></p>
+          </div>
 
-    <section class="card">
-      <div class="page-head" style="margin-bottom:8px">
-        <h2 style="margin:0">Fines</h2>
-        <label class="checkbox"><input type="checkbox" id="unpaid-only" checked> Unpaid only</label>
+          <div class="field">
+            <label for="BorrowID">Book</label>
+            <select id="BorrowID" disabled>
+              <option value="">Find a student first</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="ReturnDate">Return date</label>
+            <input id="ReturnDate" type="date">
+          </div>
+
+          <button class="btn" type="submit" id="confirm" disabled>Confirm return</button>
+        </form>
+
+        <aside class="card" aria-live="polite">
+          <h2>Summary</h2>
+          <div id="summary"><p class="muted">Pick a book to see its due date and any fine.</p></div>
+        </aside>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>Student</th><th>Book</th><th>Returned</th><th>Fine</th><th>Status</th><th></th></tr></thead>
-          <tbody id="fines"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
+    </main>
+  </div>
 
   <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
   <script src="../js/librarian/return.js"></script>
 </body>
 </html>

@@ -1,115 +1,195 @@
-// Requests queue: borrow, renew and return requests in arrival order (borrowing.get_queue).
-// Borrow requests open a review with the automatic checks (checks.run_checks) and the ID check.
-const TYPE_LABEL = { borrow: "Borrow", renew: "Renew", return: "Return" };
-const dialog = document.getElementById("review");
-let currentType = "";
-let queue = [];
-let selected = null;
+// Verify Student: verify.html?student=<StudentID>&request=<BorrowID>
+// Five checks with Pass / Fail, Pass all, fines with Mark as paid, then Approve or Deny.
+let st = null;          // the student from GET /api/librarian/students/<id>
+let marks = {};         // reason -> "pass" | "fail" | undefined
+let requestId = Number(params.get("request")) || null;
 
-async function load() {
-  const tbody = document.getElementById("queue");
+/* ---------- Load ---------- */
+
+async function find(studentId) {
+  hideAlert("alert");
+  $("StudentID").value = studentId;
+  $("empty").textContent = "Looking up the student…";
+  $("empty").classList.remove("hidden");
+  $("found").classList.add("hidden");
   try {
-    queue = await API.queue(currentType || undefined);
-    tbody.innerHTML = queue.length
-      ? queue.map((q, i) => `
-          <tr>
-            <td>${i + 1}</td>
-            <td>${badge(TYPE_LABEL[q.type], "blue")}</td>
-            <td><div class="title">${esc(q.StudentName || q.StudentID)}</div><div class="sub">${esc(q.StudentID)}</div></td>
-            <td><div class="title">${esc(q.BookTitle || q.BookID)}</div><div class="sub">${esc(q.BookID)}</div></td>
-            <td>${fmtDate(q.RequestedAt, true)}</td>
-            <td><button class="btn small" data-index="${i}">Review</button></td>
-          </tr>`).join("")
-      : emptyRow(6, "No pending requests.");
+    st = await API.student(studentId);
   } catch (err) {
-    tbody.innerHTML = emptyRow(6, err.message);
+    st = null;
+    $("empty").textContent = err.status === 404 ? `No student with ID ${studentId}.` : err.message;
+    return;
   }
+
+  // Checks the system knows: true from run_checks means the student fails it
+  marks = {};
+  for (const r of DENY_REASONS) {
+    if (st.checks && r in st.checks) marks[r] = st.checks[r] ? "fail" : "pass";
+  }
+  const pending = st.pending || [];
+  if (!pending.some((p) => p.BorrowID === requestId)) requestId = pending[0] ? pending[0].BorrowID : null;
+
+  history.replaceState(null, "", `?student=${encodeURIComponent(st.StudentID)}${requestId ? "&request=" + requestId : ""}`);
+  render();
 }
 
-document.getElementById("tabs").addEventListener("click", (e) => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
-  document.querySelectorAll("#tabs button").forEach((b) => b.classList.toggle("active", b === btn));
-  currentType = btn.dataset.type;
-  load();
+/* ---------- Render ---------- */
+
+function render() {
+  $("empty").classList.add("hidden");
+  $("found").classList.remove("hidden");
+
+  $("who").textContent = fullName(st);
+  $("standing").innerHTML = badge(st.Status === "Suspended" ? "Suspended" : "Good standing");
+  const a = age(st.DateOfBirth);
+  $("details").innerHTML = `
+    <dt>Student ID</dt><dd>${esc(st.StudentID)}</dd>
+    <dt>Date of birth</dt><dd>${fmtDate(st.DateOfBirth)}${a !== "" ? ` (${a} years old)` : ""}</dd>
+    <dt>Contact</dt><dd>${(st.contacts || []).map(esc).join(", ") || "None"}</dd>
+    <dt>Address</dt><dd>${esc(st.Address || "None")}</dd>
+    <dt>Books held</dt><dd>${(st.loans || []).length} of ${RULES.borrowLimit}</dd>`;
+
+  renderChecks();
+  renderFine();
+  renderRequests();
+}
+
+function renderChecks() {
+  $("checks").innerHTML = DENY_REASONS.map((r) => {
+    const m = marks[r];
+    const extra = r === "Unpaid fines" && st.FineOwed ? ` <span class="money-bad">${peso(st.FineOwed)}</span>` : "";
+    return `
+      <li>
+        <span>${esc(r)}${extra}</span>
+        <span class="passfail" role="group" aria-label="${esc(r)}">
+          <button type="button" class="pass ${m === "pass" ? "on" : ""}" data-r="${esc(r)}" data-m="pass" aria-pressed="${m === "pass"}">Pass</button>
+          <button type="button" class="fail ${m === "fail" ? "on" : ""}" data-r="${esc(r)}" data-m="fail" aria-pressed="${m === "fail"}">Fail</button>
+        </span>
+      </li>`;
+  }).join("");
+  updateDecision();
+}
+
+function renderFine() {
+  const owed = st.FineOwed || 0;
+  $("fine").innerHTML = owed ? `<span class="money-bad">${peso(owed)} unpaid</span>` : "No unpaid fines.";
+  $("pay").disabled = !owed;
+}
+
+function renderRequests() {
+  const pending = st.pending || [];
+  $("requests").innerHTML = pending.length
+    ? pending.map((p) => `
+        <label class="checkbox" style="margin-bottom:8px">
+          <input type="radio" name="req" value="${p.BorrowID}" ${p.BorrowID === requestId ? "checked" : ""}>
+          <span><strong>${esc(p.BookTitle)}</strong><br><span class="muted">Requested ${fmtDate(p.RequestedAt, true)}</span></span>
+        </label>`).join("")
+    : `<p class="muted">This student has no pending borrow request.</p>`;
+  updateDecision();
+}
+
+function updateDecision() {
+  const allPass = DENY_REASONS.every((r) => marks[r] === "pass");
+  const undecided = DENY_REASONS.filter((r) => !marks[r]);
+  $("approve").disabled = !requestId || !allPass;
+  $("deny").disabled = !requestId;
+  $("approve-why").textContent = !requestId ? ""
+    : undecided.length ? `Still to check: ${undecided.join(", ")}.`
+    : !allPass ? "A check failed, so this request can only be denied." : "";
+}
+
+/* ---------- Actions ---------- */
+
+$("checks").addEventListener("click", (e) => {
+  const b = e.target.closest("button[data-r]");
+  if (!b) return;
+  marks[b.dataset.r] = b.dataset.m;
+  renderChecks();
 });
 
-document.getElementById("queue").addEventListener("click", (e) => {
-  const btn = e.target.closest("button[data-index]");
-  if (btn) openReview(queue[+btn.dataset.index]);
+$("pass-all").addEventListener("click", () => {
+  DENY_REASONS.forEach((r) => { marks[r] = "pass"; });
+  renderChecks();
 });
 
-async function openReview(q) {
-  selected = q;
-  hideAlert("r-alert");
-  document.getElementById("r-title").textContent = `${TYPE_LABEL[q.type]} request`;
-  document.getElementById("r-sub").textContent =
-    `${q.StudentName || q.StudentID} (${q.StudentID}) · ${q.BookTitle || q.BookID}` +
-    (q.type === "renew" && q.DueDate ? ` · due ${fmtDate(q.DueDate)}` : "");
+$("requests").addEventListener("change", (e) => {
+  requestId = Number(e.target.value);
+  updateDecision();
+});
 
-  const isBorrow = q.type === "borrow";
-  document.getElementById("r-checks").classList.toggle("hidden", !isBorrow);
-  dialog.showModal();
-  if (!isBorrow) return;
-
-  const idok = document.getElementById("r-idok");
-  idok.checked = false;
-  renderReasons([]);
-
-  const list = document.getElementById("r-checklist");
-  list.innerHTML = `<li class="muted">Running checks…</li>`;
+$("pay").addEventListener("click", async () => {
+  const ok = await confirmDialog({
+    title: "Mark fines as paid?",
+    body: `<p>${esc(fullName(st))} pays <strong>${peso(st.FineOwed)}</strong> at the desk.</p>`,
+    confirm: "Mark as paid",
+  });
+  if (!ok) return;
   try {
-    const checks = await API.checks(q.StudentID);
-    const failed = Object.keys(checks).filter((k) => checks[k]);
-    list.innerHTML = Object.entries(checks).map(([name, bad]) =>
-      `<li><span>${esc(name)}</span>${bad ? badge("Problem", "error") : badge("OK", "success")}</li>`).join("");
-    renderReasons(failed);
+    await busy($("pay"), () => API.payFines(st.StudentID));
+    showAlert("alert", `${peso(st.FineOwed)} marked as paid.`, "success");
+    st.FineOwed = 0;
+    marks["Unpaid fines"] = "pass";
+    renderFine();
+    renderChecks();
   } catch (err) {
-    list.innerHTML = `<li class="muted">${esc(err.message)}</li>`;
+    showAlert("alert", err.message);
   }
-}
-
-// Deny reason checkboxes; failed checks start ticked
-function renderReasons(ticked) {
-  document.getElementById("r-reasons").innerHTML = DENY_REASONS.map((r) => `
-    <label class="checkbox"><input type="checkbox" value="${esc(r)}" ${ticked.includes(r) ? "checked" : ""}> ${esc(r)}</label>`).join("");
-}
-
-// Unticking "valid school ID" ticks the matching deny reason, and the other way round
-document.getElementById("r-idok").addEventListener("change", (e) => {
-  const box = document.querySelector('#r-reasons input[value="No valid Student ID"]');
-  if (box) box.checked = !e.target.checked;
 });
 
-document.getElementById("r-cancel").addEventListener("click", () => dialog.close());
+$("approve").addEventListener("click", async () => {
+  try {
+    await busy($("approve"), () => API.approve("borrow", requestId, { student_id_ok: true }), "Approving…");
+    showAlert("alert", "Borrow approved. The 7 working days start today.", "success");
+    find(st.StudentID);
+  } catch (err) {
+    showAlert("alert", err.message);
+  }
+});
 
-document.getElementById("r-approve").addEventListener("click", (e) => decide(e.target, "approve"));
-document.getElementById("r-deny").addEventListener("click", (e) => decide(e.target, "deny"));
-
-async function decide(button, action) {
-  hideAlert("r-alert");
-  const q = selected;
-  let data = {};
-  if (q.type === "borrow") {
-    if (action === "approve") {
-      if (!document.getElementById("r-idok").checked) {
-        return showAlert("r-alert", "Confirm the student showed a valid school ID before approving.");
-      }
-      data = { student_id_ok: true };
-    } else {
-      const reasons = [...document.querySelectorAll("#r-reasons input:checked")].map((i) => i.value);
-      if (!reasons.length) return showAlert("r-alert", "Tick at least one reason to deny.");
-      data = { reasons };
+$("deny").addEventListener("click", () => {
+  const failed = DENY_REASONS.filter((r) => marks[r] === "fail");
+  const dlg = document.createElement("dialog");
+  dlg.setAttribute("aria-labelledby", "dn-title");
+  dlg.innerHTML = `
+    <h2 id="dn-title">Why is this request denied?</h2>
+    <p class="muted">The student sees every reason you tick.</p>
+    ${DENY_REASONS.map((r) => `
+      <label class="checkbox" style="margin-bottom:8px">
+        <input type="checkbox" value="${esc(r)}" ${failed.includes(r) ? "checked" : ""}> ${esc(r)}
+      </label>`).join("")}
+    <div id="dn-alert" class="alert hidden"></div>
+    <div class="actions">
+      <button type="button" class="btn secondary" data-a="cancel">Cancel</button>
+      <button type="button" class="btn danger" data-a="deny">Deny request</button>
+    </div>`;
+  document.body.appendChild(dlg);
+  dlg.addEventListener("close", () => dlg.remove());
+  dlg.addEventListener("click", async (e) => {
+    const b = e.target.closest("button[data-a]");
+    if (!b) return;
+    if (b.dataset.a === "cancel") return dlg.close();
+    const reasons = [...dlg.querySelectorAll("input:checked")].map((i) => i.value);
+    if (!reasons.length) return showAlert(dlg.querySelector("#dn-alert"), "Tick at least one reason.");
+    try {
+      await busy(b, () => API.deny("borrow", requestId, { reasons }), "Denying…");
+      dlg.close();
+      showAlert("alert", "Request denied. The student can see the reasons.", "success");
+      find(st.StudentID);
+    } catch (err) {
+      showAlert(dlg.querySelector("#dn-alert"), err.message);
     }
-  }
-  try {
-    await busy(button, () => (action === "approve" ? API.approve : API.deny)(q.type, q.request_id, data));
-    dialog.close();
-    showAlert("alert", `${TYPE_LABEL[q.type]} request ${action === "approve" ? "approved" : "denied"}.`, "success");
-    load();
-  } catch (err) {
-    showAlert("r-alert", err.message);
-  }
-}
+  });
+  dlg.showModal();
+});
 
-requireRole("librarian").then(load);
+$("search").addEventListener("submit", (e) => {
+  e.preventDefault();
+  const id = $("StudentID").value.trim();
+  if (!id) return showAlert("alert", "Type a Student ID to search.");
+  requestId = null;
+  find(id);
+});
+
+(async () => {
+  await startPage("librarian", "verify");
+  if (params.get("student")) find(params.get("student"));
+})();

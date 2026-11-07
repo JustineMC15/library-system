@@ -3,75 +3,77 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verify Requests</title>
+  <title>Verify Student · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <span class="brand">Library System</span>
-    <nav>
-      <a href="dashboard.html">Dashboard</a>
-      <a href="verify.html" class="active">Requests</a>
-      <a href="return.html">Returns &amp; fines</a>
-      <a href="catalog.html">Catalog</a>
-      <a href="nonworking.html">Non-working days</a>
-      <a href="register.html">Add librarian</a>
-    </nav>
-    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
-  </header>
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
 
-  <main>
-    <div class="page-head">
-      <div>
-        <h1>Requests</h1>
-        <p class="muted">Oldest first. Check each student before approving a borrow.</p>
-      </div>
-    </div>
-
-    <div id="alert" class="alert hidden" role="alert"></div>
-
-    <section class="card">
-      <div class="tabs" id="tabs">
-        <button data-type="" class="active">All</button>
-        <button data-type="borrow">Borrow</button>
-        <button data-type="renew">Renew</button>
-        <button data-type="return">Return</button>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th>Type</th><th>Student</th><th>Book</th><th>Requested</th><th></th></tr></thead>
-          <tbody id="queue"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
-        </table>
-      </div>
-    </section>
-  </main>
-
-  <!-- Review dialog for one request -->
-  <dialog id="review">
-    <form method="dialog" id="review-form">
-      <h2 id="r-title">Review request</h2>
-      <p class="muted" id="r-sub"></p>
-      <div id="r-alert" class="alert hidden" role="alert"></div>
-
-      <div id="r-checks">
-        <h3 style="font-size:14px;margin-top:16px">Student checks</h3>
-        <ul class="checklist" id="r-checklist"><li class="muted">Running checks…</li></ul>
-        <label class="checkbox" style="margin:14px 0">
-          <input type="checkbox" id="r-idok"> Student showed a valid school ID
-        </label>
-        <h3 style="font-size:14px">Deny reasons</h3>
-        <div id="r-reasons"></div>
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Verify Student</h1>
+          <p class="muted">Check the student before approving a borrow. Every check must pass.</p>
+        </div>
       </div>
 
-      <div class="actions" style="margin-top:20px;justify-content:flex-end">
-        <button type="button" class="btn outline" id="r-cancel">Cancel</button>
-        <button type="button" class="btn danger" id="r-deny">Deny</button>
-        <button type="button" class="btn success" id="r-approve">Approve</button>
+      <form id="search" class="card filters" style="grid-template-columns: 1fr auto" role="search">
+        <div class="field">
+          <label for="StudentID">Student ID</label>
+          <input id="StudentID" placeholder="25A-0058" autocomplete="off">
+        </div>
+        <button class="btn" type="submit">Find student</button>
+      </form>
+
+      <div id="alert" class="alert hidden"></div>
+
+      <div id="empty" class="card empty">Search a Student ID, or open a borrow request from the Request Queue.</div>
+
+      <div id="found" class="grid-side hidden">
+        <div>
+          <section class="card" aria-labelledby="who">
+            <div class="card-head">
+              <h2 id="who"></h2>
+              <span id="standing"></span>
+            </div>
+            <dl class="facts" id="details" style="margin-bottom:0"></dl>
+          </section>
+
+          <section class="card" aria-labelledby="checks-title">
+            <div class="card-head">
+              <h2 id="checks-title">Five checks</h2>
+              <button type="button" class="btn small secondary" id="pass-all">Pass all</button>
+            </div>
+            <ul class="checklist" id="checks"></ul>
+            <p class="muted" style="margin-top:16px">Checks the system can see start filled in. Look at the school ID card yourself.</p>
+          </section>
+        </div>
+
+        <div>
+          <section class="card" aria-labelledby="fine-title">
+            <h2 id="fine-title">Fines</h2>
+            <p id="fine" class="big"></p>
+            <button type="button" class="btn secondary" id="pay">Mark as paid</button>
+          </section>
+
+          <section class="card" aria-labelledby="decide-title">
+            <h2 id="decide-title">Borrow request</h2>
+            <div id="requests"></div>
+            <div class="actions" style="margin-top:16px">
+              <button type="button" class="btn danger" id="deny">Deny</button>
+              <button type="button" class="btn success" id="approve">Approve</button>
+            </div>
+            <p class="why" id="approve-why"></p>
+          </section>
+        </div>
       </div>
-    </form>
-  </dialog>
+    </main>
+  </div>
 
   <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
   <script src="../js/librarian/verify.js"></script>
 </body>
 </html>

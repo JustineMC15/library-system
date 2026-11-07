@@ -3,36 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Login</title>
+  <title>Student Login · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div class="auth-page">
-    <div class="auth-card">
-      <div class="logo">LIB</div>
-      <h1>Student Login</h1>
-      <p class="sub">Sign in with your Student ID to borrow books.</p>
+    <main class="auth-card">
+      <div id="logo"></div>
+      <h1>Student login</h1>
+      <p class="sub">Use the Student ID on your school ID card.</p>
 
-      <div id="alert" class="alert hidden" role="alert"></div>
+      <div id="alert" class="alert hidden"></div>
 
-      <form id="form" novalidate>
+      <form id="form" data-role="student" novalidate>
         <div class="field">
-          <label for="id">Student ID</label>
-          <input id="id" name="id" placeholder="25A-0058" autocomplete="username" required>
+          <label for="StudentID">Student ID</label>
+          <input id="StudentID" name="StudentID" placeholder="25A-0058" autocomplete="username" required>
         </div>
         <div class="field">
-          <label for="password">Password</label>
-          <input id="password" name="password" type="password" autocomplete="current-password" required>
+          <label for="Password">Password</label>
+          <input id="Password" name="Password" type="password" autocomplete="current-password" required>
         </div>
         <button class="btn block" type="submit">Log in</button>
       </form>
 
       <p class="switch">No account yet? <a href="register.html">Register</a></p>
-      <p class="switch"><a href="../librarian/login.html">Librarian login</a></p>
-    </div>
+      <p class="switch">Library staff? <a href="../librarian/login.html">Librarian login</a></p>
+    </main>
   </div>
 
   <script src="../js/api.js"></script>
-  <script src="../js/student/login.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/login.js"></script>
 </body>
 </html>

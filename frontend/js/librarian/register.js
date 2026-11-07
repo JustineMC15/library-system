@@ -1,23 +1,22 @@
-// Add librarian: POST /api/librarian/register (librarian login required).
-const form = document.getElementById("form");
-const val = (id) => document.getElementById(id).value.trim();
+// Add Librarian: POST /api/librarian/register (librarian login required).
+const form = $("form");
+const val = (id) => $(id).value.trim();
 
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   hideAlert("alert");
-  const data = {
-    librarian_id: val("librarian_id"),
-    librarian_name: val("librarian_name"),
-    password: document.getElementById("password").value,
-  };
-  if (!data.librarian_id || !data.librarian_name || !data.password) {
-    return showAlert("alert", "Fill in every field.");
-  }
-  if (data.password !== document.getElementById("confirm").value) {
+  const required = ["LibrarianID", "LibrarianName", "Password"];
+  const missing = required.filter((id) => !val(id));
+  required.forEach((id) => $(id).classList.toggle("invalid", missing.includes(id)));
+  if (missing.length) return showAlert("alert", "Fill in the highlighted fields.");
+  if ($("Password").value !== $("Confirm").value) {
+    $("Confirm").classList.add("invalid");
     return showAlert("alert", "The two passwords don't match.");
   }
+
+  const data = { librarian_id: val("LibrarianID"), librarian_name: val("LibrarianName"), password: $("Password").value };
   try {
-    await busy(form.querySelector("button"), () => API.registerLibrarian(data));
+    await busy(form.querySelector("button"), () => API.registerLibrarian(data), "Creating…");
     showAlert("alert", `Librarian ${data.librarian_id} created. They can log in now.`, "success");
     form.reset();
   } catch (err) {
@@ -25,4 +24,4 @@ form.addEventListener("submit", async (e) => {
   }
 });
 
-requireRole("librarian");
+startPage("librarian", "register");

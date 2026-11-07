@@ -1,70 +1,89 @@
-// Book details: book.html?id=<BookID>. Shows one book and a "Request to borrow" button.
-const bookId = new URLSearchParams(location.search).get("id");
-const box = document.getElementById("book");
+// Book Details: book.html?id=<BookID>. One main button: Request to Borrow, with a confirm popup.
+const bookId = params.get("id");
+let offDays = new Set();
+
+function mainAction(b, mine) {
+  if (mine && mine.Status === "Borrowed") {
+    const read = b.BookType === "Digital" && mine.DigitalLink
+      ? `<a class="btn" href="${esc(mine.DigitalLink)}" target="_blank" rel="noopener">Read</a>` : "";
+    return `${read}<span>You have this book. <a href="dashboard.html#borrowed">See it in My Borrowed Books</a></span>`;
+  }
+  if (mine) return `${badge("Pending")} <span>Your request is waiting for a librarian.</span>`;
+  if (b.available === 0 || b.available === false) {
+    return `<button class="btn" disabled>Request to Borrow</button>
+      <span class="why">Another student has this copy.</span>`;
+  }
+  return `<button class="btn" id="borrow" type="button">Request to Borrow</button>`;
+}
 
 async function load() {
   if (!bookId) {
-    box.innerHTML = `<p class="empty">No book selected. <a href="browse.html">Browse books</a></p>`;
+    $("book").innerHTML = `<p class="empty">No book picked. <a href="browse.html">Browse Books</a></p>`;
     return;
   }
   let b;
   try {
     b = await API.book(bookId);
   } catch (err) {
-    box.innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+    $("book").innerHTML = `<p class="empty">${esc(err.message)} <a href="browse.html">Back to Browse Books</a></p>`;
     return;
   }
 
-  // Is this book already on the student's list? (pending or borrowed)
   let mine = null;
   try {
     mine = (await API.myLoans()).find((l) => l.BookID === b.BookID && ["Pending", "Borrowed"].includes(l.Status));
-  } catch { /* loans endpoint missing: just skip this check */ }
+  } catch { /* loans route missing: skip the "you have this" check */ }
 
-  let action;
-  if (mine && mine.Status === "Borrowed") {
-    action = `${badge("You have this book", "blue")}
-      ${mine.DigitalLink ? `<a class="btn" href="${esc(mine.DigitalLink)}" target="_blank" rel="noopener">Open e-book</a>` : ""}`;
-  } else if (mine) {
-    action = badge("Your request is waiting for approval", "warning");
-  } else if (b.available === 0 || b.available === false) {
-    action = `<button class="btn" disabled>Not available</button>
-      <span class="muted">Someone else has this book or requested it first.</span>`;
-  } else {
-    action = `<button class="btn" id="borrow">Request to borrow</button>`;
-  }
-
-  document.title = b.BookTitle;
-  box.innerHTML = `
+  const digital = b.BookType === "Digital";
+  document.title = `${b.BookTitle} · Library`;
+  $("book").innerHTML = `
     <div class="detail">
-      <div class="cover">${esc(b.BookTitle)}</div>
+      <div class="shelf-spine ${digital ? "digital" : ""}" aria-hidden="true">
+        <span class="t">${esc(b.BookTitle)}</span>
+        <span class="l">${esc(String(b.BookID).split(" ").slice(0, 2).join(" "))}</span>
+      </div>
       <div>
         <h1>${esc(b.BookTitle)}</h1>
-        <p class="muted">${esc(b.BookAuthor)}</p>
+        <p class="big">${esc(b.BookAuthor)}</p>
         <dl class="facts">
-          <dt>Call number</dt><dd>${esc(b.BookID)}</dd>
-          <dt>ISBN</dt><dd>${esc(b.BookISBN || "—")}</dd>
-          <dt>Published</dt><dd>${esc(b.PublishYear || "—")}</dd>
-          <dt>Type</dt><dd>${badge(b.BookType, b.BookType === "Digital" ? "blue" : "")}</dd>
-          ${b.BookType === "Digital" ? `<dt>Access</dt><dd class="muted">The e-book link appears once your request is approved.</dd>` : ""}
+          <dt>Book ID</dt><dd>${spineLabel(b)}</dd>
+          <dt>ISBN</dt><dd>${esc(b.BookISBN || "None listed")}</dd>
+          <dt>Published</dt><dd>${esc(b.PublishYear || "Unknown")}</dd>
+          <dt>Type</dt><dd>${badge(b.BookType)}</dd>
+          <dt>Copies</dt><dd>1 copy ${availabilityBadge(b)}</dd>
+          ${digital ? "<dt>Reading</dt><dd>Opens as an outside e-book link once your request is approved.</dd>" : ""}
         </dl>
-        <div class="actions" style="align-items:center">${action}</div>
+        <div class="actions">${mainAction(b, mine)}</div>
       </div>
     </div>`;
 
-  const btn = document.getElementById("borrow");
-  if (btn) {
-    btn.addEventListener("click", async () => {
-      hideAlert("alert");
-      try {
-        await busy(btn, () => API.requestBorrow(b.BookID));
-        showAlert("alert", "Request sent. You'll see it on My books while a librarian reviews it.", "success");
-        load();
-      } catch (err) {
-        showAlert("alert", err.message);
-      }
-    });
+  const btn = $("borrow");
+  if (btn) btn.addEventListener("click", () => borrow(b, btn));
+}
+
+async function borrow(b, btn) {
+  hideAlert("alert");
+  const due = addWorkingDays(todayIso(), RULES.loanDays, offDays);
+  const ok = await confirmDialog({
+    title: "Request to borrow?",
+    body: `<p><strong>${esc(b.BookTitle)}</strong></p>
+      <p>${slip("Due date if approved today", due, "", true)}</p>
+      <p class="muted">A librarian checks your account first. The 7 working days start when they approve,
+      so a later approval means a later due date.</p>`,
+    confirm: "Send request",
+  });
+  if (!ok) return;
+  try {
+    await busy(btn, () => API.requestBorrow(b.BookID), "Sending…");
+    showAlert("alert", "Request sent. It's in My Borrowed Books while a librarian reviews it.", "success");
+    load();
+  } catch (err) {
+    showAlert("alert", err.message);
   }
 }
 
-requireRole("student").then(load);
+(async () => {
+  await startPage("student", "browse");
+  offDays = await loadOffDays();
+  load();
+})();

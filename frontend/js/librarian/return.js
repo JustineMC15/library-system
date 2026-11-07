@@ -1,86 +1,110 @@
-// Returns & fines: approve or deny return requests, and mark fines as paid.
-const today = new Date().toISOString().slice(0, 10);
+// Process Return: return.html?student=<StudentID>&borrow=<BorrowID>
+// Pick the student and the book, record the return date, confirm. Shows the fine before confirming.
+let st = null;
+let offDays = new Set();
 
-async function loadReturns() {
-  const tbody = document.getElementById("returns");
-  try {
-    const rows = await API.queue("return");
-    tbody.innerHTML = rows.length
-      ? rows.map((q) => {
-          const late = q.DueDate && q.DueDate < today;
-          return `
-          <tr>
-            <td><div class="title">${esc(q.StudentName || q.StudentID)}</div><div class="sub">${esc(q.StudentID)}</div></td>
-            <td><div class="title">${esc(q.BookTitle || q.BookID)}</div><div class="sub">${esc(q.BookID)}</div></td>
-            <td>${fmtDate(q.DueDate)} ${late ? badge("Late", "error") : ""}</td>
-            <td>${fmtDate(q.RequestedAt, true)}</td>
-            <td><div class="actions">
-              <button class="btn small success" data-approve="${q.request_id}">Book received</button>
-              <button class="btn small outline" data-deny="${q.request_id}">Deny</button>
-            </div></td>
-          </tr>`;
-        }).join("")
-      : emptyRow(5, "No books waiting to be returned.");
-  } catch (err) {
-    tbody.innerHTML = emptyRow(5, err.message);
-  }
+function selectedLoan() {
+  const id = Number($("BorrowID").value);
+  return st && (st.loans || []).find((l) => l.BorrowID === id);
 }
 
-async function loadFines() {
-  const tbody = document.getElementById("fines");
-  const unpaidOnly = document.getElementById("unpaid-only").checked;
-  try {
-    let rows = await API.fines();
-    if (unpaidOnly) rows = rows.filter((f) => !f.FinePaidDate);
-    tbody.innerHTML = rows.length
-      ? rows.map((f) => `
-          <tr>
-            <td><div class="title">${esc(f.StudentName || f.StudentID)}</div><div class="sub">${esc(f.StudentID)}</div></td>
-            <td>${esc(f.BookTitle)}</td>
-            <td>${fmtDate(f.ReturnDate)}</td>
-            <td><strong>${peso(f.FineAmount)}</strong></td>
-            <td>${f.FinePaidDate ? badge("Paid " + fmtDate(f.FinePaidDate), "success") : badge("Unpaid", "error")}</td>
-            <td>${f.FinePaidDate ? "" : `<button class="btn small" data-paid="${f.ReturnID}">Mark paid</button>`}</td>
-          </tr>`).join("")
-      : emptyRow(6, unpaidOnly ? "No unpaid fines." : "No fines recorded.");
-  } catch (err) {
-    tbody.innerHTML = emptyRow(6, err.message);
-  }
+function dueOf(l) {
+  return l.DueDate || addWorkingDays(l.BorrowDate, RULES.loanDays, offDays);
 }
 
-document.getElementById("returns").addEventListener("click", async (e) => {
-  const btn = e.target.closest("button");
-  if (!btn) return;
+function fineFor(l, returnDate) {
+  const due = dueOf(l);
+  return returnDate > due ? workingDaysBetween(due, returnDate, offDays) * RULES.finePerDay : 0;
+}
+
+function renderSummary() {
+  const l = selectedLoan();
+  const date = $("ReturnDate").value;
+  $("confirm").disabled = !l || !date;
+  if (!l) {
+    $("summary").innerHTML = `<p class="muted">Pick a book to see its due date and any fine.</p>`;
+    return;
+  }
+  const due = dueOf(l);
+  const late = date > due;
+  const fine = fineFor(l, date);
+  $("summary").innerHTML = `
+    <p><strong>${esc(l.BookTitle)}</strong></p>
+    <p>${spineLabel(l)}</p>
+    <div class="actions" style="margin-bottom:16px">
+      ${slip("Borrowed", l.BorrowDate)}
+      ${slip("Due", due, late ? "late" : "")}
+    </div>
+    ${late
+      ? `<p>${badge("Overdue")} ${plural(workingDaysBetween(due, date, offDays), "working day")} late</p>
+         <p class="money-bad big">Fine: ${peso(fine)}</p>`
+      : `<p>${badge("Returned")} On time, no fine.</p>`}`;
+}
+
+async function find(studentId, borrowId) {
   hideAlert("alert");
+  $("StudentID").value = studentId;
+  $("student-name").textContent = "Looking up…";
   try {
-    if (btn.dataset.approve) {
-      await busy(btn, () => API.approve("return", +btn.dataset.approve));
-      showAlert("alert", "Return approved. Any late fine now shows below.", "success");
-    } else {
-      if (!confirm("Deny this return request? The book stays on the student's account.")) return;
-      await busy(btn, () => API.deny("return", +btn.dataset.deny));
-      showAlert("alert", "Return request denied.", "success");
-    }
-    loadReturns();
-    loadFines();
+    st = await API.student(studentId);
+  } catch (err) {
+    st = null;
+    $("student-name").textContent = "";
+    $("BorrowID").innerHTML = `<option value="">Find a student first</option>`;
+    $("BorrowID").disabled = true;
+    renderSummary();
+    return showAlert("alert", err.status === 404 ? `No student with ID ${studentId}.` : err.message);
+  }
+
+  const loans = st.loans || [];
+  $("student-name").textContent = `${fullName(st)}, ${plural(loans.length, "book")} borrowed`;
+  $("BorrowID").innerHTML = loans.length
+    ? `<option value="">Choose a book</option>` + loans.map((l) =>
+        `<option value="${l.BorrowID}" ${l.BorrowID === borrowId ? "selected" : ""}>${esc(l.BookTitle)}</option>`).join("")
+    : `<option value="">No borrowed books</option>`;
+  $("BorrowID").disabled = !loans.length;
+  renderSummary();
+}
+
+$("find").addEventListener("click", () => {
+  const id = $("StudentID").value.trim();
+  if (!id) return showAlert("alert", "Type a Student ID first.");
+  find(id);
+});
+$("StudentID").addEventListener("keydown", (e) => {
+  if (e.key === "Enter") { e.preventDefault(); $("find").click(); }
+});
+$("BorrowID").addEventListener("change", renderSummary);
+$("ReturnDate").addEventListener("input", renderSummary);
+
+$("form").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const l = selectedLoan();
+  const date = $("ReturnDate").value;
+  if (!l || !date) return;
+  if (date > todayIso()) return showAlert("alert", "The return date can't be in the future.");
+  const fine = fineFor(l, date);
+  const ok = await confirmDialog({
+    title: "Confirm this return?",
+    body: `<p><strong>${esc(l.BookTitle)}</strong> from ${esc(fullName(st))}, returned ${fmtDate(date)}.</p>
+      <p>${fine ? `<span class="money-bad">Fine of ${peso(fine)} will be recorded.</span>` : "No fine."}</p>`,
+    confirm: "Confirm return",
+  });
+  if (!ok) return;
+  try {
+    const res = await busy($("confirm"), () => API.processReturn(l.BorrowID, date), "Saving…");
+    const recorded = res && res.FineAmount !== undefined ? res.FineAmount : fine;
+    showAlert("alert", `Return saved for ${l.BookTitle}.${recorded ? ` Fine recorded: ${peso(recorded)}.` : ""}`, "success");
+    find(st.StudentID);
   } catch (err) {
     showAlert("alert", err.message);
   }
 });
 
-document.getElementById("fines").addEventListener("click", async (e) => {
-  const btn = e.target.closest("button[data-paid]");
-  if (!btn) return;
-  hideAlert("alert");
-  try {
-    await busy(btn, () => API.markFinePaid(+btn.dataset.paid));
-    showAlert("alert", "Fine marked as paid.", "success");
-    loadFines();
-  } catch (err) {
-    showAlert("alert", err.message);
-  }
-});
-
-document.getElementById("unpaid-only").addEventListener("change", loadFines);
-
-requireRole("librarian").then(() => Promise.all([loadReturns(), loadFines()]));
+(async () => {
+  await startPage("librarian", "return");
+  $("ReturnDate").value = todayIso();
+  $("ReturnDate").max = todayIso();
+  offDays = await loadOffDays();
+  if (params.get("student")) find(params.get("student"), Number(params.get("borrow")) || null);
+})();

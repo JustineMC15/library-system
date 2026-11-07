@@ -3,69 +3,82 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Register</title>
+  <title>Register · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div class="auth-page">
-    <div class="auth-card wide">
-      <div class="logo">LIB</div>
-      <h1>Create a student account</h1>
-      <p class="sub">Use the Student ID printed on your school ID.</p>
+    <main class="auth-card wide">
+      <div id="logo"></div>
+      <h1>Create your library account</h1>
+      <p class="sub">Use the details on your school ID. You'll show the same ID when you pick up a book.</p>
 
-      <div id="alert" class="alert hidden" role="alert"></div>
+      <div id="alert" class="alert hidden"></div>
 
       <form id="form" novalidate>
         <div class="field">
-          <label for="student_id">Student ID</label>
-          <input id="student_id" placeholder="25A-0058" required>
+          <label for="StudentID">Student ID</label>
+          <input id="StudentID" placeholder="25A-0058" required>
         </div>
+
         <div class="row-3">
           <div class="field">
-            <label for="last_name">Last name</label>
-            <input id="last_name" autocomplete="family-name" required>
+            <label for="LastName">Last name</label>
+            <input id="LastName" autocomplete="family-name" required>
           </div>
           <div class="field">
-            <label for="first_name">First name</label>
-            <input id="first_name" autocomplete="given-name" required>
+            <label for="FirstName">First name</label>
+            <input id="FirstName" autocomplete="given-name" required>
           </div>
           <div class="field">
-            <label for="middle_initial">M.I. <span class="hint">(optional)</span></label>
-            <input id="middle_initial" maxlength="2">
+            <label for="MiddleInitial">M.I. <span class="hint">(optional)</span></label>
+            <input id="MiddleInitial" maxlength="2">
           </div>
         </div>
+
         <div class="field">
-          <label for="address">Address <span class="hint">(optional)</span></label>
-          <input id="address" autocomplete="street-address">
+          <span class="label-text" id="contact-label">Contact numbers</span>
+          <div id="contacts" role="group" aria-labelledby="contact-label"></div>
+          <button type="button" class="btn small secondary" id="add-contact">Add another number</button>
         </div>
+
+        <div class="field">
+          <label for="Address">Address <span class="hint">(optional)</span></label>
+          <input id="Address" autocomplete="street-address">
+        </div>
+
         <div class="row">
           <div class="field">
-            <label for="date_of_birth">Date of birth</label>
-            <input id="date_of_birth" type="date" required>
+            <label for="DateOfBirth">Date of birth</label>
+            <input id="DateOfBirth" type="date" required>
           </div>
           <div class="field">
-            <label for="contacts">Contact numbers <span class="hint">(comma-separated)</span></label>
-            <input id="contacts" placeholder="09171234567" inputmode="tel">
+            <label for="Age">Age <span class="hint">(from date of birth)</span></label>
+            <input id="Age" readonly tabindex="-1" placeholder="Fills in automatically">
           </div>
         </div>
+
         <div class="row">
           <div class="field">
-            <label for="password">Password</label>
-            <input id="password" type="password" autocomplete="new-password" required>
+            <label for="Password">Password</label>
+            <input id="Password" type="password" autocomplete="new-password" required>
           </div>
           <div class="field">
-            <label for="confirm">Confirm password</label>
-            <input id="confirm" type="password" autocomplete="new-password" required>
+            <label for="Confirm">Confirm password</label>
+            <input id="Confirm" type="password" autocomplete="new-password" required>
           </div>
         </div>
+
         <button class="btn block" type="submit">Create account</button>
       </form>
 
       <p class="switch">Already registered? <a href="login.html">Log in</a></p>
-    </div>
+    </main>
   </div>
 
   <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
   <script src="../js/student/register.js"></script>
 </body>
 </html>

@@ -3,41 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Details</title>
+  <title>Book Details · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <header class="topbar">
-    <span class="brand">Library System</span>
-    <nav>
-      <a href="dashboard.html">My books</a>
-      <a href="browse.html" class="active">Browse</a>
-      <a href="denied.html">Denied requests</a>
-    </nav>
-    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
-  </header>
+  <div id="shell" data-role="student"></div>
 
   <main>
-    <p><a href="browse.html">← Back to browse</a></p>
-    <div id="alert" class="alert hidden" role="alert"></div>
+    <p><a href="browse.html">Back to Browse Books</a></p>
+    <div id="alert" class="alert hidden"></div>
 
-    <section id="book" class="card">
-      <p class="empty">Loading…</p>
-    </section>
+    <div class="grid-side">
+      <section id="book" class="card" aria-live="polite">
+        <p class="empty">Loading the book…</p>
+      </section>
 
-    <section class="card">
-      <h2>Before you borrow</h2>
-      <ul class="muted">
-        <li>You can hold up to 3 books at a time.</li>
-        <li>Loans last 7 working days (Sundays and holidays don't count).</li>
-        <li>Overdue books cost ₱2 per working day, per book.</li>
-        <li>Requests are denied if you have overdue books, unpaid fines, or a suspension.</li>
-        <li>Show your school ID at the desk when you pick up a physical book.</li>
-      </ul>
-    </section>
+      <aside class="card">
+        <h2>Borrowing rules</h2>
+        <ul class="reasons">
+          <li>Hold up to 3 books at a time.</li>
+          <li>Each book has 1 copy, so only one student can have it.</li>
+          <li>Loans run 7 working days. Saturdays count; Sundays and holidays don't.</li>
+          <li>Renew up to 3 times. A renewal resets the loan to 7 days left.</li>
+          <li>Late books cost ₱2 per working day, per book.</li>
+          <li>Show your school ID when you pick up a physical book.</li>
+        </ul>
+      </aside>
+    </div>
   </main>
 
   <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
   <script src="../js/student/book.js"></script>
 </body>
 </html>
