@@ -11,6 +11,7 @@ const SCHOOL = { name: "OLOPS College Library", logo: "olops-logo.png", url: "ht
 const SCHOOL_LINKS = [
   { href: "https://www.olopsc.edu.ph/about", label: "About OLOPSC" },
   { href: "https://www.olopsc.edu.ph/admissions/", label: "Admissions" },
+  { href: "https://www.olopsc.edu.ph/sdg", label: "Sustainability" }, // the school's Sustainable Development Goals page
 ];
 
 const NAV = {
