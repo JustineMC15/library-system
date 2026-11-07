@@ -15,7 +15,7 @@ def student_loans():
                CASE WHEN Borrow.Status = 'Borrowed' THEN Book.DigitalLink END AS DigitalLink
         FROM Borrow
         JOIN Book ON Book.BookID = Borrow.BookID
-        WHERE Borrow.StudentID = ?
+        WHERE Borrow.StudentID = ? AND Borrow.Status IN ('Pending', 'Borrowed')
         """,
         (session["user_id"],),
     ).fetchall()
