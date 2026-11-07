@@ -274,6 +274,16 @@ function labelTables() {
 new MutationObserver(labelTables).observe(document.body, { childList: true, subtree: true });
 labelTables();
 
+// A page-to-page fade that gets interrupted (fast double click, reload mid-fade) is harmless;
+// catch its "skipped" rejections so they don't show as console errors
+for (const type of ["pageswap", "pagereveal"]) {
+  addEventListener(type, (e) => {
+    const vt = e.viewTransition;
+    if (!vt) return;
+    [vt.ready, vt.finished, vt.updateCallbackDone].forEach((p) => p && p.catch(() => {}));
+  });
+}
+
 // Clicking the dark area outside any popup closes it, like pressing Cancel
 document.addEventListener("click", (e) => {
   if (e.target.tagName === "DIALOG" && e.target.open) {
