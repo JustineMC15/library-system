@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Browse Books · Library</title>
+  <title>Browse Books · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -13,26 +13,22 @@
     <div class="page-head">
       <div>
         <h1>Browse Books</h1>
-        <p class="muted" id="count" aria-live="polite">Loading the catalog…</p>
+        <p id="count" aria-live="polite">Loading the catalog…</p>
       </div>
-      <button type="button" class="btn secondary hidden" id="clear">Clear filters</button>
     </div>
 
-    <form id="filters" class="card filters" role="search">
+    <form id="filters" class="filters" role="search" style="margin-bottom:24px">
       <div class="field">
-        <label for="search">Search</label>
-        <input id="search" type="search" placeholder="Title, author, ISBN or call number" aria-describedby="search-help">
-        <p class="help" id="search-help">Press / to jump here from anywhere on the page.</p>
+        <label for="search" class="visually-hidden">Search books</label>
+        <input id="search" type="search" placeholder="Search by title, author, or ISBN (press / to jump here)">
       </div>
-      <div class="field">
-        <span class="label-text" id="type-label">Type</span>
-        <div class="segmented" id="type" role="group" aria-labelledby="type-label">
-          <button type="button" data-type="" class="active" aria-pressed="true">All</button>
-          <button type="button" data-type="Physical" aria-pressed="false">Physical</button>
-          <button type="button" data-type="Digital" aria-pressed="false">Digital</button>
-        </div>
+      <div class="segmented" id="type" role="group" aria-label="Filter books">
+        <button type="button" data-type="" aria-pressed="true">All</button>
+        <button type="button" data-type="Physical" aria-pressed="false">Physical</button>
+        <button type="button" data-type="Digital" aria-pressed="false">Digital</button>
+        <button type="button" id="available" aria-pressed="false">Available Only</button>
+        <button type="button" class="hidden" id="clear">Clear</button>
       </div>
-      <label class="checkbox"><input id="available" type="checkbox"> Available only</label>
     </form>
 
     <div id="alert" class="alert hidden"></div>

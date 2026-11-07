@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dashboard · Library</title>
+  <title>Dashboard · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -12,56 +12,30 @@
   <main>
     <div class="page-head">
       <div>
-        <h1 id="hello">Your library</h1>
-        <p class="muted">Loans run 7 working days. Sundays and marked holidays don't count.</p>
+        <h1 id="hello">Welcome</h1>
+        <p>What would you like to do today?</p>
       </div>
-    </div>
-
-    <div class="stats" aria-live="polite">
-      <div class="stat" id="stat-borrowed"><div class="label">Books borrowed</div><div class="value">Loading…</div></div>
-      <div class="stat" id="stat-due"><div class="label">Due soon</div><div class="value">Loading…</div></div>
-      <div class="stat" id="stat-status"><div class="label">Account status</div><div class="value">Loading…</div></div>
     </div>
 
     <div class="grid-2" style="margin-bottom:24px">
-      <a class="entry" href="browse.html">
-        <span class="title">Browse Books</span>
-        <span class="sub">Search the catalog and request a book.</span>
-      </a>
-      <a class="entry light" href="#borrowed">
-        <span class="title">My Borrowed Books</span>
-        <span class="sub">Due dates, renewals and returns.</span>
-      </a>
+      <section class="entry" aria-labelledby="e-browse">
+        <h2 class="title" id="e-browse">Browse Books</h2>
+        <p>Find a physical or digital book and request to borrow it.</p>
+        <a class="btn" href="browse.html">Browse Books</a>
+      </section>
+      <section class="entry" aria-labelledby="e-mine">
+        <h2 class="title" id="e-mine">My Borrowed Books</h2>
+        <p>Renew, return or read the books you have borrowed.</p>
+        <a class="btn" href="borrowed.html">View My Books</a>
+      </section>
     </div>
 
-    <section class="card" id="borrowed" aria-labelledby="borrowed-title">
-      <div class="card-head">
-        <h2 id="borrowed-title">My Borrowed Books</h2>
-      </div>
-      <div id="alert" class="alert hidden"></div>
-      <div class="tabs" role="tablist">
-        <button type="button" role="tab" id="tab-books" aria-selected="true" class="active">Borrowed</button>
-        <button type="button" role="tab" id="tab-denied" aria-selected="false">Denied <span class="count" id="denied-count"></span></button>
-      </div>
-
-      <div id="panel-books" role="tabpanel" aria-labelledby="tab-books">
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Book</th><th>Borrowed</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
-            <tbody id="loans"><tr><td colspan="5" class="empty loading">Loading your books…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div id="panel-denied" role="tabpanel" aria-labelledby="tab-denied" hidden>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>Book</th><th>Requested</th><th>Reasons</th><th></th></tr></thead>
-            <tbody id="denied"><tr><td colspan="4" class="empty loading">Loading…</td></tr></tbody>
-          </table>
-        </div>
-      </div>
-    </section>
+    <div class="stats status-cards" aria-live="polite">
+      <div class="stat"><div class="label">Books Borrowed</div><div class="value" id="s-borrowed">…</div></div>
+      <div class="stat"><div class="label">Due Soon</div><div id="s-due">…</div></div>
+      <div class="stat"><div class="label">Account Status</div><div id="s-status">…</div></div>
+    </div>
+    <p class="muted">Loans run 7 working days. Sundays and marked holidays don't count.</p>
   </main>
 
   <script src="../js/api.js"></script>

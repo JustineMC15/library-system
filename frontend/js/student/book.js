@@ -6,7 +6,7 @@ function mainAction(b, mine) {
   if (mine && mine.Status === "Borrowed") {
     const read = b.BookType === "Digital" && mine.DigitalLink
       ? `<a class="btn" href="${esc(mine.DigitalLink)}" target="_blank" rel="noopener">Read</a>` : "";
-    return `${read}<span>You have this book. <a href="dashboard.html#borrowed">See it in My Borrowed Books</a></span>`;
+    return `${read}<span>You have this book. <a href="borrowed.html">See it in My Borrowed Books</a></span>`;
   }
   if (mine) {
     return `<div><p>${badge("Pending")} Your request is in.${mine.RequestedAt ? ` Sent ${waited(mine.RequestedAt)} ago.` : ""}</p>
@@ -14,10 +14,10 @@ function mainAction(b, mine) {
       <li>${b.BookType === "Digital" ? "The Read button appears in My Borrowed Books" : "Pick it up at the desk with your school ID"}</li></ol></div>`;
   }
   if (b.available === 0 || b.available === false) {
-    return `<button class="btn" disabled>Request to Borrow</button>
+    return `<button class="btn" disabled>Request To Borrow</button>
       <span class="why">Another student has this copy.</span>`;
   }
-  return `<button class="btn" id="borrow" type="button">Request to Borrow</button>`;
+  return `<button class="btn" id="borrow" type="button">Request To Borrow</button>`;
 }
 
 async function load() {
@@ -39,26 +39,24 @@ async function load() {
   } catch { /* loans route missing: skip the "you have this" check */ }
 
   const digital = b.BookType === "Digital";
-  document.title = `${b.BookTitle} · Library`;
+  document.title = `${b.BookTitle} · OLOPS College Library`;
+  $("crumb").textContent = b.BookTitle;
   $("book").innerHTML = `
     <div class="detail">
-      <div class="shelf-spine ${digital ? "digital" : ""}" aria-hidden="true">
-        <span class="t">${esc(b.BookTitle)}</span>
-        <span class="l">${esc(String(b.BookID).split(" ").slice(0, 2).join(" "))}</span>
-      </div>
-      <div>
+      <div class="card" style="padding:16px">${coverHtml(b, "L")}</div>
+      <section class="card">
         <h1>${esc(b.BookTitle)}</h1>
-        <p class="big">${esc(b.BookAuthor)}</p>
-        <dl class="facts">
-          <dt>Book ID</dt><dd>${spineLabel(b)}</dd>
-          <dt>ISBN</dt><dd>${esc(b.BookISBN || "None listed")}</dd>
-          <dt>Published</dt><dd>${esc(b.PublishYear || "Unknown")}</dd>
-          <dt>Type</dt><dd>${badge(b.BookType)}</dd>
-          <dt>Copies</dt><dd>1 copy ${availabilityBadge(b)}</dd>
-          ${digital ? "<dt>Reading</dt><dd>Opens as an outside e-book link once your request is approved.</dd>" : ""}
-        </dl>
+        <p class="muted">${esc(b.BookAuthor)}</p>
+        <div class="actions">${badge(b.BookType)} ${availabilityBadge(b)} <span class="muted">1 copy</span></div>
+        <table class="details-table">
+          <tr><th scope="row">Book ID</th><td>${esc(b.BookID)}</td></tr>
+          <tr><th scope="row">ISBN</th><td>${esc(b.BookISBN || "None listed")}</td></tr>
+          <tr><th scope="row">Year of Publication</th><td>${esc(b.PublishYear || "Unknown")}</td></tr>
+          <tr><th scope="row">Type</th><td>${esc(b.BookType)}${digital ? " (opens as an outside e-book link once approved)" : ""}</td></tr>
+        </table>
         <div class="actions">${mainAction(b, mine)}</div>
-      </div>
+        <p class="muted" style="margin-top:16px">A librarian will verify and approve your request.</p>
+      </section>
     </div>`;
 
   const btn = $("borrow");
@@ -68,17 +66,12 @@ async function load() {
 async function borrow(b, btn) {
   hideAlert("alert");
   const due = addWorkingDays(todayIso(), RULES.loanDays, offDays);
+  // Figma: Borrow Popup Confirmation
   const ok = await confirmDialog({
-    title: "Request to borrow?",
-    body: `<p><strong>${esc(b.BookTitle)}</strong></p>
-      <p>${slip("Due date if approved today", due, "", true)}</p>
-      <h3>What happens next</h3>
-      <ol class="steps" style="margin-bottom:8px">
-        <li class="now">A librarian checks your account (overdue books, fines, borrow limit)</li>
-        <li>${b.BookType === "Digital" ? "Once approved, a Read button appears in My Borrowed Books" : "Once approved, pick it up at the desk with your school ID"}</li>
-        <li>Return or renew it within 7 working days</li>
-      </ol>
-      <p class="muted">The 7 days start when the librarian approves, so a later approval means a later due date.</p>`,
+    title: "Confirm borrow request",
+    body: `<p>${esc(b.BookTitle)}</p>
+      <p class="muted">Loan period: 7 working days after approval. Sundays, holidays and school closures are not counted.</p>
+      <p>Due date if approved today: <strong>${fmtDate(due)}</strong></p>`,
     confirm: "Send request",
   });
   if (!ok) return;

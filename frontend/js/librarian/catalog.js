@@ -8,7 +8,7 @@ function row(b) {
     ? `<div><a href="${esc(b.DigitalLink)}" target="_blank" rel="noopener">Open e-book link</a></div>` : "";
   return `
     <tr>
-      <td>${spineLabel(b)}</td>
+      <td>${esc(b.BookID)}</td>
       <td><div class="title">${esc(b.BookTitle)}</div><div class="sub">${esc(b.BookAuthor)}</div>${link}</td>
       <td>${esc(b.BookISBN || "None")}</td>
       <td>${esc(b.PublishYear || "Unknown")}</td>
@@ -23,7 +23,6 @@ async function load() {
     const books = await API.books({
       search: $("search").value.trim(),
       type,
-      available: $("available").checked ? "1" : "",
     });
     const out = books.filter((b) => b.available === 0 || b.available === false).length;
     $("count").textContent = `${plural(books.length, "book")}, ${out} out on loan`;
@@ -45,7 +44,6 @@ $("type").addEventListener("click", (e) => {
   load();
 });
 $("search").addEventListener("input", () => { clearTimeout(timer); timer = setTimeout(load, 250); });
-$("available").addEventListener("change", load);
 $("filters").addEventListener("submit", (e) => { e.preventDefault(); load(); });
 
 startPage("librarian", "catalog").then(load);

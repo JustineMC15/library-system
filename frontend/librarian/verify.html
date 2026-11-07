@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Verify Student · Library</title>
+  <title>Verify Student · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -13,58 +13,55 @@
     <main>
       <div class="page-head">
         <div>
-          <h1>Verify Student</h1>
+          <h1>Verify Request</h1>
           <p class="muted">Check the student before approving a borrow. Every check must pass.</p>
         </div>
+        <form id="search" class="inline" role="search" style="min-width:min(100%, 360px)">
+          <label for="StudentID" class="visually-hidden">Student ID</label>
+          <input id="StudentID" placeholder="Search a Student ID" autocomplete="off">
+          <button class="btn secondary" type="submit">Find</button>
+        </form>
       </div>
-
-      <form id="search" class="card filters" style="grid-template-columns: 1fr auto" role="search">
-        <div class="field">
-          <label for="StudentID">Student ID</label>
-          <input id="StudentID" placeholder="25A-0058" autocomplete="off">
-        </div>
-        <button class="btn" type="submit">Find student</button>
-      </form>
 
       <div id="alert" class="alert hidden"></div>
 
-      <div id="empty" class="card empty">Search a Student ID, or open a borrow request from the Request Queue.</div>
+      <div id="empty" class="card empty">Search a Student ID, or open a borrow request from the Request Queue on the Dashboard.</div>
 
-      <div id="found" class="grid-side hidden">
-        <div>
-          <section class="card" aria-labelledby="who">
+      <div id="found" class="hidden">
+        <div class="grid-2">
+          <section class="card" aria-labelledby="student-title">
             <div class="card-head">
-              <h2 id="who"></h2>
+              <h2 id="student-title">Student</h2>
               <span id="standing"></span>
             </div>
-            <dl class="facts" id="details" style="margin-bottom:0"></dl>
+            <table class="details-table" id="details" style="margin:0"></table>
           </section>
 
           <section class="card" aria-labelledby="checks-title">
             <div class="card-head">
-              <h2 id="checks-title">Five checks</h2>
+              <h2 id="checks-title">Verification</h2>
               <button type="button" class="btn small secondary" id="pass-all">Pass all</button>
             </div>
             <ul class="checklist" id="checks"></ul>
-            <p class="muted" style="margin-top:16px">Checks the system can see start filled in. Look at the school ID card yourself.</p>
+            <p class="muted" style="margin-top:16px">Checks the system can see start filled in. Check the school ID card yourself.</p>
           </section>
         </div>
 
-        <div>
-          <section class="card" aria-labelledby="fine-title">
-            <h2 id="fine-title">Fines</h2>
-            <p id="fine" class="big"></p>
-            <button type="button" class="btn secondary" id="pay">Mark as paid</button>
-          </section>
-
+        <div class="grid-2">
           <section class="card" aria-labelledby="decide-title">
             <h2 id="decide-title">Borrow request</h2>
             <div id="requests"></div>
             <div class="actions" style="margin-top:16px">
-              <button type="button" class="btn danger" id="deny">Deny</button>
-              <button type="button" class="btn success" id="approve">Approve</button>
+              <button type="button" class="btn" id="approve">Approve</button>
+              <button type="button" class="btn secondary" id="deny">Deny</button>
             </div>
             <p class="why" id="approve-why"></p>
+          </section>
+
+          <section class="card" aria-labelledby="fine-title">
+            <h2 id="fine-title">Fines</h2>
+            <p id="fine" class="big"></p>
+            <button type="button" class="btn secondary" id="pay">Mark as paid</button>
           </section>
         </div>
       </div>

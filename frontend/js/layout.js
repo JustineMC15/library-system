@@ -17,14 +17,14 @@ const NAV = {
   student: [
     { key: "dashboard", href: "dashboard.html", label: "Dashboard" },
     { key: "browse", href: "browse.html", label: "Browse Books" },
+    { key: "borrowed", href: "borrowed.html", label: "My Borrowed Books" },
   ],
   librarian: [
     { key: "dashboard", href: "dashboard.html", label: "Dashboard" },
     { key: "verify", href: "verify.html", label: "Verify Student" },
     { key: "return", href: "return.html", label: "Process Return" },
     { key: "catalog", href: "catalog.html", label: "Book Catalog" },
-    { key: "nonworking", href: "nonworking.html", label: "Non-Working Days" },
-    { key: "register", href: "register.html", label: "Add Librarian" },
+    { key: "nonworking", href: "nonworking.html", label: "Non-working Days" },
   ],
 };
 
@@ -73,13 +73,17 @@ function renderShell(role, active) {
   if (role === "librarian") {
     shell.outerHTML = `
       <aside class="sidebar" id="sidebar">
-        ${logoHtml()}
+        ${logoHtml("Marikina City, Philippines")}
         <button type="button" class="btn small ghost menu-toggle" id="menu-toggle"
                 aria-expanded="false" aria-controls="drawer">Menu</button>
         <div class="drawer" id="drawer">
           <div>
+            <p class="who-heading" id="me-heading">&nbsp;</p>
             <nav aria-label="Librarian">${links}</nav>
-            <div class="user">${user}</div>
+            <div class="user">
+              <a href="register.html" ${active === "register" ? 'aria-current="page"' : ""}>Add a librarian account</a>
+              ${user}
+            </div>
           </div>
         </div>
       </aside>`;
@@ -87,7 +91,7 @@ function renderShell(role, active) {
   } else {
     shell.outerHTML = `
       <header class="topbar">
-        ${logoHtml()}
+        ${logoHtml("Marikina City, Philippines")}
         <nav aria-label="Student">${links}</nav>
         <div class="user">${user}</div>
       </header>`;
@@ -119,6 +123,8 @@ function setupMenu() {
 function showMe(me) {
   const name = displayName(me);
   document.getElementById("me-name").textContent = name || "Not logged in";
+  const heading = document.getElementById("me-heading");
+  if (heading) heading.textContent = name || "Librarian";
   // Show the ID underneath only when we have a real name to show above it
   document.getElementById("me-id").textContent = me.id && name !== me.id ? me.id : "";
 }

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Non-Working Days · Library</title>
+  <title>Non-working Days · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -13,26 +13,34 @@
     <main>
       <div class="page-head">
         <div>
-          <h1>Non-Working Days</h1>
-          <p class="muted">Marked days don't count toward due dates or fines. Sundays are skipped automatically.</p>
+          <h1>Non-working Days</h1>
+          <p>Sundays are grayed out automatically. Select a date to mark or unmark it.</p>
         </div>
       </div>
 
       <div id="alert" class="alert hidden"></div>
 
       <div class="grid-side">
-        <section class="card" aria-labelledby="month">
+        <section aria-labelledby="month">
           <div class="cal-head">
-            <button type="button" class="btn secondary" id="prev" aria-label="Previous month">Previous</button>
             <h2 id="month" style="margin:0" aria-live="polite"></h2>
-            <button type="button" class="btn secondary" id="next" aria-label="Next month">Next</button>
+            <div class="actions">
+              <button type="button" class="btn small secondary" id="prev" aria-label="Previous month">Previous</button>
+              <button type="button" class="btn small secondary" id="next" aria-label="Next month">Next</button>
+            </div>
           </div>
           <div class="cal" id="cal"></div>
         </section>
 
-        <aside class="card" aria-labelledby="list-title">
-          <h2 id="list-title">Marked dates</h2>
-          <ul class="side-list" id="list"><li class="muted">Loading…</li></ul>
+        <aside>
+          <section class="card" id="panel" aria-labelledby="panel-title" aria-live="polite">
+            <h2 id="panel-title">Mark a date</h2>
+            <p class="muted">Pick a day on the calendar.</p>
+          </section>
+          <section class="card" aria-labelledby="list-title">
+            <h2 id="list-title">Marked Dates</h2>
+            <ul class="side-list" id="list"><li class="muted loading">Loading…</li></ul>
+          </section>
         </aside>
       </div>
     </main>

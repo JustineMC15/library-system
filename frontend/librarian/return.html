@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Process Return · Library</title>
+  <title>Process Return · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
@@ -14,43 +14,41 @@
       <div class="page-head">
         <div>
           <h1>Process Return</h1>
-          <p class="muted">Pick the student and the book, record the return date, then confirm.</p>
+          <p>Process a physical book return.</p>
         </div>
       </div>
 
       <div id="alert" class="alert hidden"></div>
 
-      <div class="grid-side">
-        <form id="form" class="card" novalidate>
+      <form id="form" class="grid-2" novalidate>
+        <section class="card" aria-labelledby="details-title">
+          <h2 id="details-title">Return Details</h2>
           <div class="field">
             <label for="StudentID">Student ID</label>
-            <div class="inline">
-              <input id="StudentID" placeholder="25A-0058" autocomplete="off">
-              <button type="button" class="btn secondary" id="find">Find</button>
-            </div>
-            <p class="muted" id="student-name" style="margin-top:8px"></p>
+            <input id="StudentID" placeholder="Enter Student ID" autocomplete="off">
+            <p class="help" id="student-name" aria-live="polite"></p>
           </div>
-
           <div class="field">
-            <label for="BorrowID">Book</label>
-            <select id="BorrowID" disabled>
-              <option value="">Find a student first</option>
-            </select>
+            <label for="BookID">Book ID</label>
+            <input id="BookID" placeholder="Enter Book ID" list="borrowed-books" autocomplete="off" disabled>
+            <datalist id="borrowed-books"></datalist>
+            <p class="help">Type or pick from the student's borrowed books.</p>
           </div>
-
           <div class="field">
-            <label for="ReturnDate">Return date</label>
+            <label for="ReturnDate">Return Date</label>
             <input id="ReturnDate" type="date">
           </div>
+        </section>
 
-          <button class="btn" type="submit" id="confirm" disabled>Confirm return</button>
-        </form>
-
-        <aside class="card" aria-live="polite">
-          <h2>Summary</h2>
-          <div id="summary"><p class="muted">Pick a book to see its due date and any fine.</p></div>
-        </aside>
-      </div>
+        <section class="card" aria-labelledby="summary-title" aria-live="polite">
+          <h2 id="summary-title">Summary</h2>
+          <table class="details-table" id="summary"></table>
+          <div class="actions">
+            <button type="reset" class="btn secondary" id="cancel">Cancel</button>
+            <button type="submit" class="btn" id="confirm" disabled>Confirm Return</button>
+          </div>
+        </section>
+      </form>
     </main>
   </div>
 

@@ -38,6 +38,8 @@ const API = {
   // ----- Librarian: dashboard and queue (borrowing.get_queue) -----
   stats: () => request("GET", "/api/librarian/stats"),                                      // (needed)
   // -> { borrows_today, returns_today, overdue }
+  overdue: () => request("GET", "/api/librarian/overdue"),                                  // (needed)
+  // -> [{ BorrowID, StudentID, StudentName, BookTitle, DueDate, DaysLate, Fine }]  most overdue first
   queue: (type) => request("GET", "/api/librarian/queue" + query({ type })),                // (needed)
   // -> [{ type: "borrow"|"renew"|"return", request_id, BorrowID, StudentID, StudentName,
   //       BookID, BookTitle, RequestedAt, DueDate }]  oldest first

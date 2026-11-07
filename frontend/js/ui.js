@@ -137,6 +137,24 @@ function availabilityBadge(book) {
   return book.available ? badge("Available") : badge("Borrowed");
 }
 
+// Book cover. Real covers come from Open Library (a free public catalog) by ISBN.
+// No ISBN, or no cover found: a plain cover with the title, so the grid never shows a broken image.
+function coverPlaceholder(book) {
+  return `<div class="cover-fallback ${book.BookType === "Digital" ? "digital" : ""}" aria-hidden="true">
+    <span>${esc(book.BookTitle)}</span><small>${esc(book.BookAuthor || "")}</small></div>`;
+}
+
+function coverHtml(book, size = "M") {
+  const isbn = String(book.BookISBN || "").replace(/[^0-9X]/gi, "");
+  const fallback = coverPlaceholder(book);
+  if (!isbn) return `<div class="cover">${fallback}</div>`;
+  const src = `https://covers.openlibrary.org/b/isbn/${isbn}-${size}.jpg?default=false`;
+  // If the image fails to load, the cover swaps itself for the placeholder kept in data-fallback
+  return `<div class="cover" data-fallback="${esc(fallback)}">
+    <img src="${src}" alt="Cover of ${esc(book.BookTitle)}" loading="lazy"
+         onerror="this.parentElement.innerHTML = this.parentElement.dataset.fallback"></div>`;
+}
+
 // Call number on a spine label; digital books get the accent color
 function spineLabel(book) {
   return `<span class="spine-label ${book.BookType === "Digital" ? "digital" : ""}">${esc(book.BookID)}</span>`;
@@ -268,6 +286,7 @@ function addPasswordToggles() {
 
 function labelTables() {
   document.querySelectorAll("table").forEach((t) => {
+    if (!t.tHead) return; // only data tables with column headings become cards
     t.classList.add("stack");
     const heads = [...t.querySelectorAll("thead th")].map((th) => th.textContent.trim());
     t.querySelectorAll("tbody tr").forEach((tr) => {

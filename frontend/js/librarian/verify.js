@@ -39,15 +39,16 @@ function render() {
   $("empty").classList.add("hidden");
   $("found").classList.remove("hidden");
 
-  $("who").textContent = fullName(st);
-  $("standing").innerHTML = badge(st.Status === "Suspended" ? "Suspended" : "Good standing");
+  $("standing").innerHTML = badge(st.Status === "Suspended" ? "Suspended" : "Good Standing", st.Status === "Suspended" ? "red" : "green");
   const a = age(st.DateOfBirth);
+  // Figma: Name, Student ID, Age, Contact No. (Course is not in the database yet)
   $("details").innerHTML = `
-    <dt>Student ID</dt><dd>${esc(st.StudentID)}</dd>
-    <dt>Date of birth</dt><dd>${fmtDate(st.DateOfBirth)}${a !== "" ? ` (${a} years old)` : ""}</dd>
-    <dt>Contact</dt><dd>${(st.contacts || []).map(esc).join(", ") || "None"}</dd>
-    <dt>Address</dt><dd>${esc(st.Address || "None")}</dd>
-    <dt>Books held</dt><dd>${(st.loans || []).length} of ${RULES.borrowLimit}${heldList()}</dd>`;
+    <tr><th scope="row">Name</th><td>${esc(fullName(st))}</td></tr>
+    <tr><th scope="row">Student ID</th><td>${esc(st.StudentID)}</td></tr>
+    <tr><th scope="row">Age</th><td>${a !== "" ? a : "Unknown"}${st.DateOfBirth ? ` <span class="muted">(born ${fmtDate(st.DateOfBirth)})</span>` : ""}</td></tr>
+    <tr><th scope="row">Contact No.</th><td>${(st.contacts || []).map(esc).join(", ") || "None"}</td></tr>
+    <tr><th scope="row">Address</th><td>${esc(st.Address || "None")}</td></tr>
+    <tr><th scope="row">Books held</th><td>${(st.loans || []).length} of ${RULES.borrowLimit}${heldList()}</td></tr>`;
 
   renderChecks();
   renderFine();
@@ -60,10 +61,19 @@ function heldList() {
   if (!loans.length) return "";
   return `<ul class="side-list" style="margin-top:8px">${loans.map((l) => {
     const state = dueState(l.DueDate, offDays);
-    return `<li><span>${esc(l.BookTitle)}<br><span class="muted">${dueText(l.DueDate, offDays)}</span></span>
-      ${slip("Due", l.DueDate, state)}</li>`;
+    return `<li><span>${esc(l.BookTitle)}<br><span class="muted">Due ${fmtDate(l.DueDate)}, ${dueText(l.DueDate, offDays)}</span></span>
+      ${state === "late" ? badge("Overdue") : state === "soon" ? badge("Due soon") : ""}</li>`;
   }).join("")}</ul>`;
 }
+
+// Figma wording for each check (the deny reason stays the stored value)
+const CHECK_LABEL = {
+  "Unreturned books": "Unreturned (Overdue) Books",
+  "Unpaid fines": "Unpaid Fines",
+  "Borrow limit reached": "Borrow Limit",
+  "No valid Student ID": "Valid Student ID",
+  "Suspension of privileges": "No Suspension",
+};
 
 function renderChecks() {
   $("checks").innerHTML = DENY_REASONS.map((r) => {
@@ -71,7 +81,7 @@ function renderChecks() {
     const extra = r === "Unpaid fines" && st.FineOwed ? ` <span class="money-bad">${peso(st.FineOwed)}</span>` : "";
     return `
       <li>
-        <span>${esc(r)}${extra}</span>
+        <span>${esc(CHECK_LABEL[r])}${extra}</span>
         <span class="passfail" role="group" aria-label="${esc(r)}">
           <button type="button" class="pass ${m === "pass" ? "on" : ""}" data-r="${esc(r)}" data-m="pass" aria-pressed="${m === "pass"}">Pass</button>
           <button type="button" class="fail ${m === "fail" ? "on" : ""}" data-r="${esc(r)}" data-m="fail" aria-pressed="${m === "fail"}">Fail</button>
@@ -80,7 +90,7 @@ function renderChecks() {
   }).join("");
   const passed = DENY_REASONS.filter((r) => marks[r] === "pass").length;
   const failed = DENY_REASONS.filter((r) => marks[r] === "fail").length;
-  $("checks-title").textContent = `Five checks: ${passed} passed${failed ? `, ${failed} failed` : ""}`;
+  $("checks-title").textContent = `Verification: ${passed} of 5 passed${failed ? `, ${failed} failed` : ""}`;
   updateDecision();
 }
 

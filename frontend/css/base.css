@@ -1,7 +1,10 @@
 /* Base: color tokens, type, page frame (top bar, sidebar), forms, buttons, messages. */
 :root {
-  --navy: #1E3A5F;
-  --blue: #3B82F6;
+  --navy: #1E3A5F;     /* headings */
+  --indigo: #2B2D6B;   /* top bar, sidebar (Figma wireframe) */
+  --gold: #F9D44A;     /* main buttons, from the school crest (Figma wireframe) */
+  --gold-hover: #F2C624;
+  --blue: #3B82F6;     /* links, active sidebar item */
   --bg: #F8FAFC;
   --white: #FFFFFF;
   --text: #0F172A;
@@ -61,7 +64,7 @@ a { color: var(--blue); }
 .topbar {
   display: flex; align-items: center; gap: 24px;
   padding: 0 32px; min-height: 64px;
-  background: var(--navy); color: var(--white);
+  background: var(--indigo); color: var(--white);
   flex-wrap: wrap;
 }
 .topbar nav { display: flex; gap: 8px; flex: 1; flex-wrap: wrap; }
@@ -76,8 +79,8 @@ a { color: var(--blue); }
 /* ---------- Librarian sidebar ---------- */
 .with-sidebar { display: flex; min-height: 100vh; }
 .sidebar {
-  width: 248px; flex-shrink: 0;
-  background: var(--navy); color: var(--white);
+  width: 280px; flex-shrink: 0;
+  background: var(--indigo); color: var(--white);
   display: flex; flex-direction: column; gap: 24px;
   padding: 24px 16px;
   position: sticky; top: 0; height: 100vh;
@@ -88,7 +91,9 @@ a { color: var(--blue); }
   padding: 8px 16px; border-radius: var(--radius);
 }
 .sidebar nav a:hover { color: var(--white); background: rgba(255, 255, 255, 0.1); }
-.sidebar nav a.active { color: var(--white); background: rgba(255, 255, 255, 0.18); font-weight: 600; }
+.sidebar nav a.active { color: var(--white); background: var(--blue); font-weight: 600; }
+.sidebar .who-heading { font-size: 20px; font-weight: 700; color: var(--white); margin: 0; overflow-wrap: anywhere; }
+.sidebar .user a { color: #E2E8F0; }
 .sidebar .user { display: flex; flex-direction: column; gap: 8px; color: #E2E8F0; border-top: 1px solid rgba(255,255,255,0.15); padding-top: 16px; }
 .sidebar .drawer { flex: 1; }
 .sidebar .drawer > div { height: 100%; }
@@ -126,30 +131,27 @@ main { max-width: 1200px; margin: 0 auto; padding: 32px; }
 .stat.attention .value { color: #B45309; }
 .stat.bad .value { color: var(--error); }
 
-/* Big entry cards on the student dashboard */
+/* Big entry cards on the student dashboard: white card, title, one line, yellow button */
 .entry {
-  display: flex; flex-direction: column; gap: 8px;
+  display: flex; flex-direction: column; align-items: flex-start; gap: 8px;
   padding: 32px 24px; border-radius: var(--radius-card);
-  background: var(--navy); color: var(--white); text-decoration: none;
+  background: var(--white); color: var(--text); border: 1px solid #CBD5E1;
 }
-.entry:hover { filter: brightness(1.1); }
-.entry .title { font-size: 20px; font-weight: 700; }
-.entry .sub { color: #E2E8F0; }
-.entry.light { background: var(--white); color: var(--navy); border: 1px solid var(--border); }
-.entry.light .sub { color: var(--muted); }
+.entry .title { font-size: 20px; font-weight: 700; color: var(--text); margin: 0; }
+.entry p { color: var(--text); margin: 0 0 16px; }
 
 /* ---------- Login / register ---------- */
 /* The library's own shelves behind the login and register pages (photo taken at the OLOPSC library) */
 .auth-body {
   min-height: 100vh; display: flex; flex-direction: column;
-  background: var(--navy) url("../assets/library.jpg") center / cover no-repeat;
+  background: var(--indigo) url("../assets/library.jpg") center / cover no-repeat;
 }
 .site-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
-  padding: 8px 32px; min-height: 64px; background: var(--navy); color: var(--white);
+  padding: 8px 32px; min-height: 64px; background: var(--indigo); color: var(--white);
 }
-.site-bar .name { display: flex; flex-direction: column; text-transform: uppercase; }
-.site-bar .name small { text-transform: none; font-weight: 400; font-size: 14px; color: #E2E8F0; }
+.logo .name { display: flex; flex-direction: column; text-transform: uppercase; font-size: 14px; }
+.logo .name small { text-transform: none; font-weight: 400; font-size: 14px; color: #E2E8F0; }
 .site-bar nav { display: flex; gap: 8px; flex-wrap: wrap; }
 .site-bar nav a {
   color: var(--white); text-decoration: none; text-transform: uppercase;
@@ -193,18 +195,18 @@ input.invalid { border-color: var(--error); }
 .inline { display: flex; gap: 8px; }
 .inline input { flex: 1; }
 
-.filters { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: end; }
+.filters { display: grid; grid-template-columns: 1fr auto auto; gap: 16px; align-items: center; }
 .filters .field { margin: 0; }
 .filters .checkbox { padding-bottom: 8px; white-space: nowrap; }
 
-/* Segmented filter buttons (All / Physical / Digital) */
-.segmented { display: inline-flex; border: 1px solid #CBD5E1; border-radius: var(--radius); overflow: hidden; }
+/* Filter buttons (All / Physical / Digital / Available Only): separate outlined buttons */
+.segmented { display: inline-flex; gap: 8px; flex-wrap: wrap; }
 .segmented button {
-  font: inherit; border: none; background: var(--white); color: var(--text);
+  font: inherit; font-weight: 600; background: var(--white); color: var(--text);
+  border: 1px solid #94A3B8; border-radius: var(--radius);
   padding: 8px 16px; cursor: pointer; min-height: 40px;
 }
-.segmented button + button { border-left: 1px solid #CBD5E1; }
-.segmented button.active { background: var(--navy); color: var(--white); font-weight: 600; }
+.segmented button.active, .segmented button[aria-pressed="true"] { background: var(--indigo); border-color: var(--indigo); color: var(--white); }
 
 /* ---------- Buttons ---------- */
 .btn {
@@ -213,16 +215,19 @@ input.invalid { border-color: var(--error); }
   padding: 8px 16px; min-height: 40px;
   border: 1px solid transparent; border-radius: var(--radius);
   cursor: pointer; text-decoration: none; white-space: nowrap;
-  background: var(--navy); color: var(--white);
+  background: var(--gold); color: var(--text);
 }
-.btn:hover { filter: brightness(1.15); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; filter: none; }
+.btn:hover { background: var(--gold-hover); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn.block { width: 100%; }
 .btn.small { min-height: 32px; padding: 4px 16px; }
-.btn.secondary { background: var(--white); color: var(--navy); border-color: #CBD5E1; }
-.btn.secondary:hover { background: var(--bg); filter: none; }
-.btn.danger { background: var(--error); }
-.btn.success { background: var(--success); }
+.btn.secondary { background: var(--white); color: var(--text); border-color: var(--text); }
+.btn.secondary:hover { background: #F1F5F9; }
+.btn.danger { background: var(--error); color: var(--white); }
+.btn.danger:hover { background: #B91C1C; }
+.btn.success { background: var(--success); color: var(--white); }
+.btn.success:hover { background: #15803D; }
+.btn.ghost:hover { background: rgba(255, 255, 255, 0.12); }
 .btn.ghost { background: transparent; color: #E2E8F0; border-color: rgba(255, 255, 255, 0.3); }
 .actions { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .why { color: var(--muted); }
@@ -238,3 +243,7 @@ input.invalid { border-color: var(--error); }
 
 /* Keyboard focus: always visible (mouse clicks don't show it) */
 :focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+
+/* Text for screen readers only */
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.sidebar .logo .crest { width: 40px; height: 40px; }

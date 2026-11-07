@@ -28,23 +28,42 @@ function renderNext() {
     $("next").innerHTML = `<p class="muted">No pending requests. The queue is clear.</p>`;
     return;
   }
+  // Figma: badge, "Book, [Student], requested Oct 16, 9:02 AM", then Review and Open Request Queue
   $("next").innerHTML = `
-    <div class="next-card">
-      <div>
-        <div class="who">${esc(q.StudentName || q.StudentID)}</div>
-        <div>${badge(TYPE[q.type], "navy")} ${esc(q.BookTitle || q.BookID)}</div>
-        <div class="muted">Requested ${fmtDate(q.RequestedAt, true)}, waiting ${waited(q.RequestedAt)}</div>
-        <div class="muted">${NEXT_STEP[q.type]}</div>
-      </div>
+    <p>${badge(TYPE[q.type], "slate")} ${esc(q.BookTitle || q.BookID)}, ${esc(q.StudentName || q.StudentID)},
+      requested ${fmtDate(q.RequestedAt, true)} <span class="muted">(waiting ${waited(q.RequestedAt)})</span></p>
+    <p class="muted">${NEXT_STEP[q.type]}</p>
+    <div class="actions">
       <button type="button" class="btn" data-review="0">Review</button>
+      <button type="button" class="btn secondary" id="open-queue">Open Request Queue</button>
     </div>`;
+  $("open-queue").addEventListener("click", () => {
+    $("queue-card").scrollIntoView({ block: "start" });
+    $("queue-card").focus({ preventScroll: true });
+  });
+}
+
+// Figma: Overdue Books table on the dashboard
+async function loadOverdue() {
+  try {
+    const rows = await API.overdue();
+    $("overdue").innerHTML = rows.length
+      ? rows.map((o) => `
+          <tr>
+            <td>${student(o)}</td>
+            <td>${esc(o.BookTitle)}</td>
+            <td>${fmtDate(o.DueDate)}</td>
+            <td>${o.DaysLate ?? workingDaysBetween(o.DueDate, todayIso(), offDays)}</td>
+            <td class="money-bad">${peso(o.Fine ?? (o.DaysLate || 0) * RULES.finePerDay)}</td>
+          </tr>`).join("")
+      : emptyRow(5, "No overdue books.");
+  } catch (err) {
+    $("overdue").innerHTML = emptyRow(5, err.message);
+  }
 }
 
 async function loadCounts() {
-  for (const t of ["borrow", "renew", "return"]) {
-    const n = fullQueue.filter((q) => q.type === t).length;
-    setStat("s-" + t, n, n ? "attention" : "");
-  }
+  setStat("s-pending", fullQueue.length, fullQueue.length ? "attention" : "");
   try {
     const s = await API.stats();
     setStat("s-btoday", s.borrows_today);
@@ -181,14 +200,14 @@ async function load() {
     $("next").innerHTML = `<p class="muted">${esc(err.message)}</p>`;
   }
   loadCounts();
+  loadOverdue();
   render();
 }
 
 (async () => {
   const me = await startPage("librarian", "dashboard");
   const date = new Date().toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
-  const name = displayName(me);
-  $("today").textContent = name ? `${date}. Signed in as ${name}.` : date;
+  $("today").textContent = `Today, ${date}`;
   offDays = await loadOffDays();
   load();
 })();

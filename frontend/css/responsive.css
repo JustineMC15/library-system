@@ -13,7 +13,7 @@
 
 /* ---------- Small laptops and tablets in landscape (up to 1100px) ---------- */
 @media (max-width: 1100px) {
-  .sidebar { width: 216px; }
+  .sidebar { width: 248px; }
   .grid-side { grid-template-columns: 1fr; }
   main { padding: 24px; }
 }
@@ -72,6 +72,7 @@
   .tabs button { white-space: nowrap; }
 
   .detail { grid-template-columns: 1fr; gap: 16px; }
+  .detail > .card:first-child { max-width: 220px; }
   .shelf-spine { width: 64px; height: 192px; padding: 8px 4px; }
   .shelf-spine .t { font-size: 14px; max-height: 128px; }
   dl.facts { grid-template-columns: 112px 1fr; }
@@ -88,7 +89,7 @@
   .cal { gap: 4px; }
   .cal .dow { font-size: 14px; }
   .cal button { min-height: 48px; padding: 4px; align-items: center; }
-  .cal button .badge { display: none; }
+  .cal button .tag { display: none; }
   .cal button.marked::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
   .cal-head .btn { padding: 8px 12px; }
 

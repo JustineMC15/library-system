@@ -3,33 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Details · Library</title>
+  <title>Book Details · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
   <div id="shell" data-role="student"></div>
 
   <main>
-    <p><a href="browse.html">Back to Browse Books</a></p>
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+      <a href="browse.html">Browse Books</a> / <span id="crumb" aria-current="page">Book</span>
+    </nav>
     <div id="alert" class="alert hidden"></div>
-
-    <div class="grid-side">
-      <section id="book" class="card" aria-live="polite">
-        <p class="empty loading">Loading the book…</p>
-      </section>
-
-      <aside class="card">
-        <h2>Borrowing rules</h2>
-        <ul class="reasons">
-          <li>Hold up to 3 books at a time.</li>
-          <li>Each book has 1 copy, so only one student can have it.</li>
-          <li>Loans run 7 working days. Saturdays count; Sundays and holidays don't.</li>
-          <li>Renew up to 3 times. A renewal resets the loan to 7 days left.</li>
-          <li>Late books cost ₱2 per working day, per book.</li>
-          <li>Show your school ID when you pick up a physical book.</li>
-        </ul>
-      </aside>
-    </div>
+    <div id="book" aria-live="polite"><p class="empty loading">Loading the book…</p></div>
   </main>
 
   <script src="../js/api.js"></script>
