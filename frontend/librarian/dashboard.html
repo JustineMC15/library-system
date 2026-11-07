@@ -3,11 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Librarian Dashboard</title>
+  <title>Dashboard · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Librarian Dashboard</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
+
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Dashboard</h1>
+          <p id="today"></p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat" id="s-pending"><div class="label">Pending Requests</div><div class="value">…</div></div>
+        <div class="stat" id="s-btoday"><div class="label">Borrowed Today</div><div class="value">…</div></div>
+        <div class="stat" id="s-rtoday"><div class="label">Returned Today</div><div class="value">…</div></div>
+        <div class="stat" id="s-overdue"><div class="label">Overdue Books</div><div class="value">…</div></div>
+      </div>
+
+      <section class="card" aria-labelledby="next-title">
+        <h2 id="next-title">Next in line</h2>
+        <div id="next" aria-live="polite"><p class="muted loading">Loading the queue…</p></div>
+      </section>
+
+      <section class="card" aria-labelledby="overdue-title">
+        <h2 id="overdue-title">Overdue Books</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student</th><th>Book</th><th>Due</th><th>Days late</th><th>Fine</th></tr></thead>
+            <tbody id="overdue"><tr><td colspan="5" class="empty loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card" id="queue-card" aria-labelledby="queue-title" tabindex="-1">
+        <div class="card-head">
+          <h2 id="queue-title">Request Queue</h2>
+          <span class="muted">Oldest first</span>
+        </div>
+        <div id="alert" class="alert hidden"></div>
+        <div class="tabs" id="tabs" role="tablist">
+          <button type="button" role="tab" data-tab="" class="active" aria-selected="true">All</button>
+          <button type="button" role="tab" data-tab="borrow" aria-selected="false">Borrow</button>
+          <button type="button" role="tab" data-tab="renew" aria-selected="false">Renew</button>
+          <button type="button" role="tab" data-tab="return" aria-selected="false">Return</button>
+          <button type="button" role="tab" data-tab="history" aria-selected="false">History</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead id="thead"></thead>
+            <tbody id="rows"><tr><td class="empty loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/librarian/dashboard.js"></script>
 </body>
 </html>

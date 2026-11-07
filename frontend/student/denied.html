@@ -3,11 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Borrow Denied</title>
+  <title>Borrow Denied · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Borrow Denied</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div id="shell" data-role="student"></div>
+
+  <main>
+    <p><a href="borrowed.html#denied">Back to My Borrowed Books</a></p>
+    <h1>Borrow Request Denied</h1>
+    <div id="content" aria-live="polite"><p class="empty loading">Loading…</p></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/denied.js"></script>
 </body>
 </html>

@@ -3,11 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Process Return</title>
+  <title>Process Return · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Process Return</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
+
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Process Return</h1>
+          <p>Process a physical book return.</p>
+        </div>
+      </div>
+
+      <div id="alert" class="alert hidden"></div>
+
+      <form id="form" class="grid-2" novalidate>
+        <section class="card" aria-labelledby="details-title">
+          <h2 id="details-title">Return Details</h2>
+          <div class="field">
+            <label for="StudentID">Student ID</label>
+            <input id="StudentID" placeholder="Enter Student ID" autocomplete="off">
+            <p class="help" id="student-name" aria-live="polite"></p>
+          </div>
+          <div class="field">
+            <label for="BookID">Book ID</label>
+            <input id="BookID" placeholder="Enter Book ID" list="borrowed-books" autocomplete="off" disabled>
+            <datalist id="borrowed-books"></datalist>
+            <p class="help">Type or pick from the student's borrowed books.</p>
+          </div>
+          <div class="field">
+            <label for="ReturnDate">Return Date</label>
+            <input id="ReturnDate" type="date">
+          </div>
+        </section>
+
+        <section class="card" aria-labelledby="summary-title" aria-live="polite">
+          <h2 id="summary-title">Summary</h2>
+          <table class="details-table" id="summary"></table>
+          <div class="actions">
+            <button type="reset" class="btn secondary" id="cancel">Cancel</button>
+            <button type="submit" class="btn" id="confirm" disabled>Confirm Return</button>
+          </div>
+        </section>
+      </form>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/librarian/return.js"></script>
 </body>
 </html>

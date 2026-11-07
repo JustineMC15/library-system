@@ -3,11 +3,51 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Librarian Register</title>
+  <title>Add Librarian · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Librarian Register</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div class="with-sidebar">
+    <div id="shell" data-role="librarian"></div>
+
+    <main>
+      <div class="page-head">
+        <div>
+          <h1>Add Librarian</h1>
+          <p class="muted">Only a logged-in librarian can create another librarian account.</p>
+        </div>
+      </div>
+
+      <section class="card" style="max-width:576px">
+        <div id="alert" class="alert hidden"></div>
+        <form id="form" novalidate>
+          <div class="field">
+            <label for="LibrarianID">Librarian ID</label>
+            <input id="LibrarianID" placeholder="L-002" autocomplete="off" required>
+          </div>
+          <div class="field">
+            <label for="LibrarianName">Full name</label>
+            <input id="LibrarianName" autocomplete="off" required>
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="Password">Password</label>
+              <input id="Password" type="password" autocomplete="new-password" required>
+            </div>
+            <div class="field">
+              <label for="Confirm">Confirm password</label>
+              <input id="Confirm" type="password" autocomplete="new-password" required>
+            </div>
+          </div>
+          <button class="btn" type="submit">Create librarian account</button>
+        </form>
+      </section>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/librarian/register.js"></script>
 </body>
 </html>

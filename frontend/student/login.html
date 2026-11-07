@@ -3,11 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Login</title>
+  <title>Student Login · Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
-<body>
-  <h1>Student Login</h1>
-  <!-- Build this page here, following the Figma. -->
+<body class="auth-body">
+  <div id="site-bar"></div>
+  <div class="auth-page">
+    <main class="auth-card">
+      <h1>Student login</h1>
+      <p class="sub">Use the Student ID on your school ID card.</p>
+
+      <div id="alert" class="alert hidden"></div>
+
+      <form id="form" data-role="student" novalidate>
+        <div class="field">
+          <label for="StudentID">Student ID</label>
+          <input id="StudentID" name="StudentID" placeholder="25A-0058" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="Password">Password</label>
+          <input id="Password" name="Password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn block" type="submit">Log in</button>
+      </form>
+
+      <p class="switch">No account yet? <a href="register.html">Register</a></p>
+      <p class="switch">Library staff? <a href="../librarian/login.html">Librarian login</a></p>
+    </main>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/login.js"></script>
 </body>
 </html>

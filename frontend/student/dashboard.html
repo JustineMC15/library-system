@@ -3,11 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Student Dashboard</title>
+  <title>Dashboard · OLOPS College Library</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Student Dashboard</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div id="shell" data-role="student"></div>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1 id="hello">Welcome</h1>
+        <p>What would you like to do today?</p>
+      </div>
+    </div>
+
+    <div class="grid-2" style="margin-bottom:24px">
+      <section class="entry" aria-labelledby="e-browse">
+        <h2 class="title" id="e-browse">Browse Books</h2>
+        <p>Find a physical or digital book and request to borrow it.</p>
+        <a class="btn" href="browse.html">Browse Books</a>
+      </section>
+      <section class="entry" aria-labelledby="e-mine">
+        <h2 class="title" id="e-mine">My Borrowed Books</h2>
+        <p>Renew, return or read the books you have borrowed.</p>
+        <a class="btn" href="borrowed.html">View My Books</a>
+      </section>
+    </div>
+
+    <div class="stats status-cards" aria-live="polite">
+      <div class="stat"><div class="label">Books Borrowed</div><div class="value" id="s-borrowed">…</div></div>
+      <div class="stat"><div class="label">Due Soon</div><div id="s-due">…</div></div>
+      <div class="stat"><div class="label">Account Status</div><div id="s-status">…</div></div>
+    </div>
+    <p class="muted">Loans run 7 working days. Sundays and marked holidays don't count.</p>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/ui.js"></script>
+  <script src="../js/layout.js"></script>
+  <script src="../js/student/dashboard.js"></script>
 </body>
 </html>

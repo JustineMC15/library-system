@@ -11,10 +11,10 @@ BOOKS_CSV = BASE_DIR.parent / "data" / "books.csv"
 # (StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, ContactNo)
 # Edit these to your real names; the IDs and dates are made up.
 STUDENTS = [
-    ("2024-0001", "Lastname", "Justine", "", "Marikina City", "2005-01-01", "09170000001"),
-    ("2024-0002", "Casas", "Jhasmine", "", "Marikina City", "2005-01-02", "09170000002"),
-    ("2024-0003", "Encio", "Ambrichie", "", "Marikina City", "2005-01-03", "09170000003"),
-    ("2024-0004", "Zafra", "Jabez", "", "Marikina City", "2005-01-04", "09170000004"),
+    ("25A-0058", "Taroy", "Justine", "", "Marikina City", "2007-01-05", "09170000001"),
+    ("25A-1058", "Casas", "Jhasmine", "", "Marikina City", "2007-01-06", "09170000002"),
+    ("25A-2058", "Encio", "Ambrichie", "", "Marikina City", "2007-01-07", "09170000003"),
+    ("25A-3058", "Zafra", "Jabez", "", "Marikina City", "2007-01-08", "09170000004"),
 ]
 
 
