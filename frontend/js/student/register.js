@@ -30,6 +30,13 @@ $("DateOfBirth").addEventListener("input", () => {
 });
 
 addPasswordToggles();
+
+// M.I. takes one letter only, shown in capitals as you type (a "1" or "l" looks like an I)
+$("MiddleInitial").addEventListener("input", (e) => {
+  const raw = e.target.value;
+  e.target.value = cleanInitial(raw);
+  fieldError("MiddleInitial", raw && !e.target.value ? "Letters only, like R." : "");
+});
 $("DateOfBirth").max = todayIso();
 
 // One clear message per field, checked on submit and again as soon as the field is fixed
@@ -61,7 +68,7 @@ form.addEventListener("submit", async (e) => {
     student_id: val("StudentID"),
     last_name: val("LastName"),
     first_name: val("FirstName"),
-    middle_initial: val("MiddleInitial") || null,
+    middle_initial: cleanInitial(val("MiddleInitial")) || null,
     address: val("Address") || null,
     date_of_birth: val("DateOfBirth"),
     contact_numbers: [...contacts.querySelectorAll("input")].map((i) => i.value.trim()).filter(Boolean),

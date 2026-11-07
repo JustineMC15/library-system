@@ -28,10 +28,16 @@ function peso(amount) {
   return "₱" + Number(amount || 0).toLocaleString("en-PH");
 }
 
+// The middle initial as one capital letter: "r", "R.", " r " -> "R". Digits and symbols are dropped.
+function cleanInitial(value) {
+  const letter = String(value || "").replace(/[^A-Za-zÑñ]/g, "").charAt(0);
+  return letter.toUpperCase();
+}
+
 function fullName(s) {
   if (!s) return "";
-  const mi = s.MiddleInitial ? ` ${s.MiddleInitial.replace(/\.?$/, ".")}` : "";
-  return `${s.FirstName}${mi} ${s.LastName}`;
+  const mi = cleanInitial(s.MiddleInitial);
+  return [s.FirstName, mi && `${mi}.`, s.LastName].filter(Boolean).join(" ");
 }
 
 function plural(n, word) {
