@@ -53,21 +53,37 @@ function renderSiteBar() {
     </header>`;
 }
 
-function renderShell(role, active, me) {
+// The person's name for display. Falls back to their ID until /api/me sends names.
+function displayName(me) {
+  if (!me) return "";
+  if (me.FirstName || me.LastName) return fullName(me);
+  return me.LibrarianName || me.name || me.id || "";
+}
+
+// Draws the nav right away (before the login check finishes) so pages don't flash empty.
+function renderShell(role, active) {
   const shell = document.getElementById("shell");
   if (!shell) return;
   const links = NAV[role].map((n) =>
     `<a href="${n.href}" ${n.key === active ? 'class="active" aria-current="page"' : ""}>${esc(n.label)}</a>`).join("");
-  const user = `<span>${esc(me.id || "Not logged in")}</span>
+  const user = `
+    <span class="who-am-i"><strong id="me-name">&nbsp;</strong><small id="me-id"></small></span>
     <button type="button" id="logout" class="btn small ghost">Log out</button>`;
 
   if (role === "librarian") {
     shell.outerHTML = `
-      <aside class="sidebar">
+      <aside class="sidebar" id="sidebar">
         ${logoHtml()}
-        <nav aria-label="Librarian">${links}</nav>
-        <div class="user">${user}</div>
+        <button type="button" class="btn small ghost menu-toggle" id="menu-toggle"
+                aria-expanded="false" aria-controls="drawer">Menu</button>
+        <div class="drawer" id="drawer">
+          <div>
+            <nav aria-label="Librarian">${links}</nav>
+            <div class="user">${user}</div>
+          </div>
+        </div>
       </aside>`;
+    setupMenu();
   } else {
     shell.outerHTML = `
       <header class="topbar">
@@ -77,15 +93,40 @@ function renderShell(role, active, me) {
       </header>`;
   }
 
-  document.getElementById("logout").addEventListener("click", async () => {
+  document.getElementById("logout").addEventListener("click", async (e) => {
+    e.target.setAttribute("aria-busy", "true");
     try { await API.logout(); } catch { /* go to login either way */ }
     location.href = `/${role}/login.html`;
   });
 }
 
-// Checks the login, draws the frame, and returns { id, role, Status? }.
+// Tablet and phone: the librarian menu opens and closes; Escape or a link click closes it
+function setupMenu() {
+  const bar = document.getElementById("sidebar");
+  const btn = document.getElementById("menu-toggle");
+  const set = (open) => {
+    bar.classList.toggle("open", open);
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Close" : "Menu";
+  };
+  btn.addEventListener("click", () => set(!bar.classList.contains("open")));
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && bar.classList.contains("open")) { set(false); btn.focus(); }
+  });
+  bar.querySelector("nav").addEventListener("click", () => set(false));
+}
+
+function showMe(me) {
+  const name = displayName(me);
+  document.getElementById("me-name").textContent = name || "Not logged in";
+  // Show the ID underneath only when we have a real name to show above it
+  document.getElementById("me-id").textContent = me.id && name !== me.id ? me.id : "";
+}
+
+// Checks the login and returns { id, role, Status?, FirstName?, LastName?, LibrarianName? }.
 // Wrong role or not logged in -> sent to that role's login page.
 async function startPage(role, active) {
+  renderShell(role, active);
   let me;
   try {
     me = await API.me();
@@ -98,6 +139,6 @@ async function startPage(role, active) {
       throw err;
     }
   }
-  renderShell(role, active, me);
+  showMe(me);
   return me;
 }

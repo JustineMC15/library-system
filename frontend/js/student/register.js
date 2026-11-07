@@ -29,19 +29,33 @@ $("DateOfBirth").addEventListener("input", () => {
   $("Age").value = a === "" ? "" : plural(a, "year") + " old";
 });
 
+addPasswordToggles();
+$("DateOfBirth").max = todayIso();
+
+// One clear message per field, checked on submit and again as soon as the field is fixed
+const CHECKS = {
+  StudentID: () => (val("StudentID") ? "" : "Enter the Student ID from your school ID."),
+  LastName: () => (val("LastName") ? "" : "Enter your last name."),
+  FirstName: () => (val("FirstName") ? "" : "Enter your first name."),
+  DateOfBirth: () => (!val("DateOfBirth") ? "Pick your date of birth."
+    : val("DateOfBirth") > todayIso() ? "Date of birth can't be in the future." : ""),
+  Password: () => ($("Password").value.length >= 6 ? "" : "Use at least 6 characters."),
+  Confirm: () => ($("Confirm").value === $("Password").value ? "" : "This doesn't match the password above."),
+};
+for (const id of Object.keys(CHECKS)) {
+  $(id).addEventListener("blur", () => { if ($(id).value) fieldError(id, CHECKS[id]()); });
+  $(id).addEventListener("input", () => { if ($(id).classList.contains("invalid")) fieldError(id, CHECKS[id]()); });
+}
+
 form.addEventListener("submit", async (e) => {
   e.preventDefault();
   hideAlert("alert");
 
-  const required = ["StudentID", "LastName", "FirstName", "DateOfBirth", "Password"];
-  const missing = required.filter((id) => !val(id));
-  required.forEach((id) => $(id).classList.toggle("invalid", missing.includes(id)));
-  if (missing.length) return showAlert("alert", "Fill in the highlighted fields.");
-  if ($("Password").value !== $("Confirm").value) {
-    $("Confirm").classList.add("invalid");
-    return showAlert("alert", "The two passwords don't match.");
+  const bad = Object.keys(CHECKS).filter((id) => !fieldError(id, CHECKS[id]()));
+  if (bad.length) {
+    $(bad[0]).focus();
+    return showAlert("alert", bad.length === 1 ? "One field needs fixing." : `${bad.length} fields need fixing.`);
   }
-  if (val("DateOfBirth") > todayIso()) return showAlert("alert", "Date of birth can't be in the future.");
 
   const data = {
     student_id: val("StudentID"),
@@ -56,8 +70,13 @@ form.addEventListener("submit", async (e) => {
 
   try {
     await busy(form.querySelector("button[type=submit]"), () => API.registerStudent(data), "Creating account…");
-    location.href = "login.html?registered=1";
+    location.href = `login.html?registered=1&id=${encodeURIComponent(data.student_id)}`;
   } catch (err) {
+    if (err.status === 409) {
+      fieldError("StudentID", "This Student ID already has an account.");
+      $("StudentID").focus();
+      return showAlert("alert", "This Student ID is already registered. Log in instead, or ask the library desk if it isn't yours.");
+    }
     showAlert("alert", err.message);
   }
 });

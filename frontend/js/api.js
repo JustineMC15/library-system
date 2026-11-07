@@ -11,7 +11,9 @@ const API = {
   login: (role, id, password) => request("POST", "/api/login", { role, id, password }),   // (exists)
   logout: () => request("POST", "/api/logout"),                                             // (exists)
   me: () => request("GET", "/api/me"),                                                      // (exists)
-  // (needed) for students, also return Status: "Active" | "Suspended"
+  // (needed) also return the person's name so pages greet them by name, not by ID:
+  //   students:   FirstName, LastName, MiddleInitial, Status ("Active" | "Suspended")
+  //   librarians: LibrarianName
   registerStudent: (data) => request("POST", "/api/register", data),                        // (exists)
   registerLibrarian: (data) => request("POST", "/api/librarian/register", data),            // (exists)
 
@@ -26,7 +28,7 @@ const API = {
 
   // ----- Student -----
   myLoans: () => request("GET", "/api/student/loans"),                                      // (exists)
-  // (needed) extra fields per row: BookType, DueDate, Renewals, PendingRenew, PendingReturn, Fine
+  // (needed) extra fields per row: BookType, RequestedAt, DueDate, Renewals, PendingRenew, PendingReturn, Fine
   requestBorrow: (bookId) => request("POST", "/api/borrow", { book_id: bookId }),           // (needed)
   requestRenew: (borrowId) => request("POST", "/api/renew", { borrow_id: borrowId }),       // (needed)
   requestReturn: (borrowId) => request("POST", "/api/return", { borrow_id: borrowId }),     // (needed)

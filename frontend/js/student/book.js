@@ -8,7 +8,11 @@ function mainAction(b, mine) {
       ? `<a class="btn" href="${esc(mine.DigitalLink)}" target="_blank" rel="noopener">Read</a>` : "";
     return `${read}<span>You have this book. <a href="dashboard.html#borrowed">See it in My Borrowed Books</a></span>`;
   }
-  if (mine) return `${badge("Pending")} <span>Your request is waiting for a librarian.</span>`;
+  if (mine) {
+    return `<div><p>${badge("Pending")} Your request is in.${mine.RequestedAt ? ` Sent ${waited(mine.RequestedAt)} ago.` : ""}</p>
+      <ol class="steps"><li class="done">Request sent</li><li class="now">Librarian checks your account</li>
+      <li>${b.BookType === "Digital" ? "The Read button appears in My Borrowed Books" : "Pick it up at the desk with your school ID"}</li></ol></div>`;
+  }
   if (b.available === 0 || b.available === false) {
     return `<button class="btn" disabled>Request to Borrow</button>
       <span class="why">Another student has this copy.</span>`;
@@ -68,8 +72,13 @@ async function borrow(b, btn) {
     title: "Request to borrow?",
     body: `<p><strong>${esc(b.BookTitle)}</strong></p>
       <p>${slip("Due date if approved today", due, "", true)}</p>
-      <p class="muted">A librarian checks your account first. The 7 working days start when they approve,
-      so a later approval means a later due date.</p>`,
+      <h3>What happens next</h3>
+      <ol class="steps" style="margin-bottom:8px">
+        <li class="now">A librarian checks your account (overdue books, fines, borrow limit)</li>
+        <li>${b.BookType === "Digital" ? "Once approved, a Read button appears in My Borrowed Books" : "Once approved, pick it up at the desk with your school ID"}</li>
+        <li>Return or renew it within 7 working days</li>
+      </ol>
+      <p class="muted">The 7 days start when the librarian approves, so a later approval means a later due date.</p>`,
     confirm: "Send request",
   });
   if (!ok) return;

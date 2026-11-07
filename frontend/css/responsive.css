@@ -1,0 +1,116 @@
+/* Responsive: desktop first (the brief designs at 1440px), then down to small laptops,
+   tablets and phones, and up to wide monitors. Loaded last so it wins ties. */
+
+/* Navigation bars stay on screen while scrolling long tables */
+.topbar, .site-bar { position: sticky; top: 0; z-index: 20; }
+.menu-toggle { display: none; }
+
+/* ---------- Wide monitors (1600px and up): keep lines readable ---------- */
+@media (min-width: 1600px) {
+  .with-sidebar main { max-width: 1440px; padding: 40px 48px; }
+  main { max-width: 1280px; }
+}
+
+/* ---------- Small laptops and tablets in landscape (up to 1100px) ---------- */
+@media (max-width: 1100px) {
+  .sidebar { width: 216px; }
+  .grid-side { grid-template-columns: 1fr; }
+  main { padding: 24px; }
+}
+
+/* ---------- Tablets (up to 900px): the sidebar becomes a top bar with a Menu button ---------- */
+@media (max-width: 900px) {
+  .with-sidebar { flex-direction: column; }
+  .sidebar {
+    width: 100%; height: auto; position: sticky; top: 0; z-index: 20;
+    flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between;
+    padding: 8px 16px; gap: 0;
+  }
+  .menu-toggle { display: inline-flex; margin-left: auto; }
+  .sidebar .drawer { flex: 1 1 100%; grid-template-rows: 0fr; }
+  .sidebar.open .drawer { grid-template-rows: 1fr; }
+  .sidebar .drawer > div { gap: 16px; padding-top: 0; }
+  .sidebar.open .drawer > div { padding: 16px 0 8px; }
+  .sidebar .user { flex-direction: row; align-items: center; justify-content: space-between; }
+  .stats { grid-template-columns: repeat(3, 1fr); }
+  .filters { grid-template-columns: 1fr auto; }
+  .filters .checkbox { grid-column: 1 / -1; padding-bottom: 0; }
+}
+
+/* ---------- Phones (up to 700px) ---------- */
+@media (max-width: 700px) {
+  main, .with-sidebar main { padding: 16px; }
+  .page-head { margin-bottom: 16px; }
+  .card { padding: 16px; margin-bottom: 16px; border-radius: var(--radius-card); }
+
+  /* 44px tap targets */
+  .btn, .btn.small, input, select, .segmented button, .tabs button, .passfail button,
+  .topbar nav a, .sidebar nav a, .site-bar nav a { min-height: 44px; }
+  .topbar nav a, .sidebar nav a, .site-bar nav a { display: inline-flex; align-items: center; }
+
+  /* Compact top bar: logo and Log out on one row, links below. The name is in the page greeting. */
+  .topbar { padding: 8px 16px; gap: 8px; position: static; }
+  .topbar .logo { flex: 1; min-width: 0; }
+  .topbar .who-am-i { display: none; }
+  .topbar nav { order: 3; flex: 1 1 100%; }
+  .topbar nav a { flex: 1; justify-content: center; }
+  .logo .crest { width: 40px; height: 40px; }
+  .site-bar { padding: 8px 16px; }
+  .site-bar nav { width: 100%; }
+  .site-bar nav a { flex: 1; justify-content: center; }
+
+  /* Summary numbers become one compact list: label on the left, value on the right */
+  .stats { grid-template-columns: 1fr; gap: 8px; }
+  .stat { padding: 8px 16px; display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+  .stat .value { font-size: 16px; margin: 0; text-align: right; }
+  .grid-2 { grid-template-columns: 1fr; gap: 16px; }
+  .entry { padding: 24px 16px; }
+  .row, .row-3, .filters { grid-template-columns: 1fr; }
+  .segmented { display: flex; }
+  .segmented button { flex: 1; }
+  .tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; scrollbar-width: none; }
+  .tabs button { white-space: nowrap; }
+
+  .detail { grid-template-columns: 1fr; gap: 16px; }
+  .shelf-spine { width: 64px; height: 192px; padding: 8px 4px; }
+  .shelf-spine .t { font-size: 14px; max-height: 128px; }
+  dl.facts { grid-template-columns: 112px 1fr; }
+
+  .next-card .btn { width: 100%; }
+  .auth-card { padding: 32px 24px; }
+
+  /* Popups: full width, buttons stacked with the main action on top */
+  dialog { width: calc(100% - 32px); padding: 24px 16px; }
+  dialog .actions { flex-direction: column-reverse; align-items: stretch; }
+  dialog .actions .btn { width: 100%; }
+
+  /* Calendar: days shrink, the reason tag becomes a dot (the day's label still says it) */
+  .cal { gap: 4px; }
+  .cal .dow { font-size: 14px; }
+  .cal button { min-height: 48px; padding: 4px; align-items: center; }
+  .cal button .badge { display: none; }
+  .cal button.marked::after { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warning); }
+  .cal-head .btn { padding: 8px 12px; }
+
+  /* Tables turn into stacked cards: each cell gets its column name as a label (ui.js adds it) */
+  .table-wrap { overflow: visible; }
+  table.stack thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+  table.stack tr { display: block; border: 1px solid var(--border); border-radius: var(--radius-card); padding: 8px 16px; margin-bottom: 8px; background: var(--white); }
+  table.stack td { display: grid; grid-template-columns: 104px 1fr; gap: 8px; align-items: start; border: none; padding: 8px 0; }
+  table.stack td::before { content: attr(data-label); color: var(--muted); font-weight: 600; grid-column: 1; grid-row: 1; }
+  table.stack td > * { grid-column: 2; min-width: 0; }  /* every line of a cell stays in the value column */
+  table.stack, table.stack tbody { display: block; width: 100%; }
+  .spine-label { white-space: normal; overflow-wrap: anywhere; }
+  table.stack td[data-label=""] { grid-template-columns: 1fr; }
+  table.stack td[data-label=""]::before { display: none; }
+  table.stack td.empty { display: block; }
+  table.stack td.empty::before { display: none; }
+  table.stack tr:has(td.empty) { border-style: dashed; }
+  table.stack .actions .btn { flex: 1; }
+}
+
+/* ---------- Very small phones (up to 360px) ---------- */
+@media (max-width: 360px) {
+  table.stack td { grid-template-columns: 1fr; gap: 0; }
+  .logo .name small { display: none; }
+}

@@ -51,8 +51,10 @@ function loanRow(l) {
     <div class="sub">${esc(l.BookAuthor || "")}</div>`;
 
   if (l.Status === "Pending") {
+    const pickUp = isDigital(l) ? "Read it online" : "Pick it up at the desk with your school ID";
     return `<tr><td>${title}</td><td>Not yet</td><td>Set when approved</td>
-      <td>${badge("Pending")}</td><td class="why">Waiting for a librarian</td></tr>`;
+      <td>${badge("Pending")}${l.RequestedAt ? `<div class="sub">Sent ${waited(l.RequestedAt)} ago</div>` : ""}</td>
+      <td><ol class="steps"><li class="done">Request sent</li><li class="now">Librarian checks your account</li><li>${pickUp}</li></ol></td></tr>`;
   }
   if (l.Status === "Returned") {
     return `<tr><td>${title}</td><td>${fmtDate(l.BorrowDate)}</td><td>None</td>
@@ -78,7 +80,7 @@ function loanRow(l) {
     <tr>
       <td>${title}<div class="sub">Renewed ${l.Renewals ?? 0} of ${RULES.maxRenewals}</div></td>
       <td>${fmtDate(l.BorrowDate)}</td>
-      <td>${slip("Due", due, state)}</td>
+      <td>${slip("Due", due, state)}<div class="sub ${state === "late" ? "money-bad" : ""}">${dueText(due, offDays)}</div></td>
       <td>${status}</td>
       <td>
         <div class="actions">
@@ -186,10 +188,13 @@ async function loadLoans() {
 
 (async () => {
   const me = await startPage("student", "dashboard");
-  if (me.id) $("hello").textContent = `Your library, ${me.id}`;
+  const first = me.FirstName || displayName(me);
+  if (first) $("hello").textContent = `Hi, ${first}`;
   offDays = await loadOffDays();
   await loadLoans();
   renderSummary(me);
   loadDenied();
   if (location.hash === "#denied") showTab("denied");
+  // The jump to My Borrowed Books happened before the table loaded; land on it again now
+  if (location.hash) $("borrowed").scrollIntoView({ block: "start" });
 })();

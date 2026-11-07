@@ -3,6 +3,7 @@
 let st = null;          // the student from GET /api/librarian/students/<id>
 let marks = {};         // reason -> "pass" | "fail" | undefined
 let requestId = Number(params.get("request")) || null;
+let offDays = new Set();
 
 /* ---------- Load ---------- */
 
@@ -46,11 +47,22 @@ function render() {
     <dt>Date of birth</dt><dd>${fmtDate(st.DateOfBirth)}${a !== "" ? ` (${a} years old)` : ""}</dd>
     <dt>Contact</dt><dd>${(st.contacts || []).map(esc).join(", ") || "None"}</dd>
     <dt>Address</dt><dd>${esc(st.Address || "None")}</dd>
-    <dt>Books held</dt><dd>${(st.loans || []).length} of ${RULES.borrowLimit}</dd>`;
+    <dt>Books held</dt><dd>${(st.loans || []).length} of ${RULES.borrowLimit}${heldList()}</dd>`;
 
   renderChecks();
   renderFine();
   renderRequests();
+}
+
+// The books the student has now, each with its due date, so "Unreturned books" can be judged at a glance
+function heldList() {
+  const loans = st.loans || [];
+  if (!loans.length) return "";
+  return `<ul class="side-list" style="margin-top:8px">${loans.map((l) => {
+    const state = dueState(l.DueDate, offDays);
+    return `<li><span>${esc(l.BookTitle)}<br><span class="muted">${dueText(l.DueDate, offDays)}</span></span>
+      ${slip("Due", l.DueDate, state)}</li>`;
+  }).join("")}</ul>`;
 }
 
 function renderChecks() {
@@ -66,6 +78,9 @@ function renderChecks() {
         </span>
       </li>`;
   }).join("");
+  const passed = DENY_REASONS.filter((r) => marks[r] === "pass").length;
+  const failed = DENY_REASONS.filter((r) => marks[r] === "fail").length;
+  $("checks-title").textContent = `Five checks: ${passed} passed${failed ? `, ${failed} failed` : ""}`;
   updateDecision();
 }
 
@@ -191,5 +206,7 @@ $("search").addEventListener("submit", (e) => {
 
 (async () => {
   await startPage("librarian", "verify");
+  offDays = await loadOffDays();
   if (params.get("student")) find(params.get("student"));
+  else $("StudentID").focus();
 })();

@@ -1,6 +1,12 @@
 // Librarian dashboard: next in line, today's counts, and the Request Queue (with History).
 // Borrow -> Verify Student, Return -> Process Return, Renew -> decided here in a popup.
 const TYPE = { borrow: "Borrow", renew: "Renew", return: "Return" };
+// What Review leads to, so the librarian knows before clicking
+const NEXT_STEP = {
+  borrow: "Review opens Verify Student to run the five checks.",
+  renew: "Review shows the current and new due dates to approve or deny.",
+  return: "Review opens Process Return to record the date and any fine.",
+};
 let tab = "";
 let fullQueue = [];   // every pending request, oldest first (positions come from this)
 let offDays = new Set();
@@ -27,7 +33,8 @@ function renderNext() {
       <div>
         <div class="who">${esc(q.StudentName || q.StudentID)}</div>
         <div>${badge(TYPE[q.type], "navy")} ${esc(q.BookTitle || q.BookID)}</div>
-        <div class="muted">Requested ${fmtDate(q.RequestedAt, true)}</div>
+        <div class="muted">Requested ${fmtDate(q.RequestedAt, true)}, waiting ${waited(q.RequestedAt)}</div>
+        <div class="muted">${NEXT_STEP[q.type]}</div>
       </div>
       <button type="button" class="btn" data-review="0">Review</button>
     </div>`;
@@ -51,7 +58,7 @@ async function loadCounts() {
 /* ---------- Queue and History tables ---------- */
 
 function renderQueue() {
-  $("thead").innerHTML = "<tr><th>#</th><th>Request</th><th>Student</th><th>Book</th><th>Requested</th><th></th></tr>";
+  $("thead").innerHTML = "<tr><th>#</th><th>Request</th><th>Student</th><th>Book</th><th>Waiting</th><th></th></tr>";
   const rows = fullQueue.map((q, i) => ({ q, i })).filter(({ q }) => !tab || q.type === tab);
   $("rows").innerHTML = rows.length
     ? rows.map(({ q, i }) => `
@@ -60,7 +67,7 @@ function renderQueue() {
           <td>${badge(TYPE[q.type], "navy")} ${i === 0 ? badge("Next in line", "amber") : ""}</td>
           <td>${student(q)}</td>
           <td><div class="title">${esc(q.BookTitle || q.BookID)}</div><div class="sub">${esc(q.BookID)}</div></td>
-          <td>${fmtDate(q.RequestedAt, true)}</td>
+          <td><div class="title">${waited(q.RequestedAt)}</div><div class="sub">${fmtDate(q.RequestedAt, true)}</div></td>
           <td><button type="button" class="btn small ${i === 0 ? "" : "secondary"}" data-review="${i}">Review</button></td>
         </tr>`).join("")
     : emptyRow(6, tab ? `No pending ${TYPE[tab].toLowerCase()} requests.` : "No pending requests.");
@@ -68,7 +75,7 @@ function renderQueue() {
 
 async function renderHistory() {
   $("thead").innerHTML = "<tr><th>Request</th><th>Student</th><th>Book</th><th>Date</th><th>Result</th><th>Librarian</th></tr>";
-  $("rows").innerHTML = emptyRow(6, "Loading history…");
+  $("rows").innerHTML = emptyRow(6, "Loading history…", true);
   try {
     const rows = await API.history();
     $("rows").innerHTML = rows.length
@@ -178,8 +185,10 @@ async function load() {
 }
 
 (async () => {
-  await startPage("librarian", "dashboard");
-  $("today").textContent = new Date().toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const me = await startPage("librarian", "dashboard");
+  const date = new Date().toLocaleDateString("en-PH", { weekday: "long", month: "long", day: "numeric", year: "numeric" });
+  const name = displayName(me);
+  $("today").textContent = name ? `${date}. Signed in as ${name}.` : date;
   offDays = await loadOffDays();
   load();
 })();

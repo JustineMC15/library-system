@@ -15,12 +15,14 @@
         <h1>Browse Books</h1>
         <p class="muted" id="count" aria-live="polite">Loading the catalog…</p>
       </div>
+      <button type="button" class="btn secondary hidden" id="clear">Clear filters</button>
     </div>
 
     <form id="filters" class="card filters" role="search">
       <div class="field">
         <label for="search">Search</label>
-        <input id="search" type="search" placeholder="Title, author, ISBN or call number">
+        <input id="search" type="search" placeholder="Title, author, ISBN or call number" aria-describedby="search-help">
+        <p class="help" id="search-help">Press / to jump here from anywhere on the page.</p>
       </div>
       <div class="field">
         <span class="label-text" id="type-label">Type</span>

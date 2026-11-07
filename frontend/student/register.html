@@ -18,7 +18,8 @@
       <form id="form" novalidate>
         <div class="field">
           <label for="StudentID">Student ID</label>
-          <input id="StudentID" placeholder="25A-0058" required>
+          <input id="StudentID" placeholder="25A-0058" autocomplete="username" required aria-describedby="sid-help">
+          <p class="help" id="sid-help">Printed on your school ID card. You'll log in with it.</p>
         </div>
 
         <div class="row-3">
@@ -37,7 +38,8 @@
         </div>
 
         <div class="field">
-          <span class="label-text" id="contact-label">Contact numbers</span>
+          <span class="label-text" id="contact-label">Contact numbers <span class="hint">(optional)</span></span>
+          <p class="help" style="margin:0 0 8px">The library uses this to reach you about overdue books. Add as many as you like.</p>
           <div id="contacts" role="group" aria-labelledby="contact-label"></div>
           <button type="button" class="btn small secondary" id="add-contact">Add another number</button>
         </div>
@@ -58,15 +60,14 @@
           </div>
         </div>
 
-        <div class="row">
-          <div class="field">
-            <label for="Password">Password</label>
-            <input id="Password" type="password" autocomplete="new-password" required>
-          </div>
-          <div class="field">
-            <label for="Confirm">Confirm password</label>
-            <input id="Confirm" type="password" autocomplete="new-password" required>
-          </div>
+        <div class="field">
+          <label for="Password">Password</label>
+          <input id="Password" type="password" autocomplete="new-password" required aria-describedby="pw-help">
+          <p class="help" id="pw-help">At least 6 characters.</p>
+        </div>
+        <div class="field">
+          <label for="Confirm">Type the password again</label>
+          <input id="Confirm" type="password" autocomplete="new-password" required>
         </div>
 
         <button class="btn block" type="submit">Create account</button>

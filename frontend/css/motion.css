@@ -1,0 +1,122 @@
+/* Motion: short and quiet. Every animation answers "what changed?" or "what can I press?".
+   Nothing loops, nothing bounces, and all of it switches off for people who ask their
+   system for reduced motion (bottom of this file). */
+
+:root {
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);  /* fast start, soft landing */
+  --fast: 120ms;   /* hover and press feedback */
+  --med: 200ms;    /* popups, panels, messages */
+  --slow: 320ms;   /* page content arriving */
+}
+
+html { scroll-behavior: smooth; }
+#borrowed, #queue-card { scroll-margin-top: 88px; } /* anchor jumps land below the sticky bar */
+
+
+/* ---------- Page to page ----------
+   Browsers that support cross-page view transitions cross-fade between pages,
+   while the navigation bar stays still, so moving around feels like one app. */
+@view-transition { navigation: auto; }
+::view-transition-old(root),
+::view-transition-new(root) { animation-duration: var(--med); animation-timing-function: var(--ease); }
+.topbar, .sidebar, .site-bar { view-transition-name: shell; }
+
+/* Page content rises in, top to bottom, so the eye follows the page order on load */
+main > * { animation: rise var(--slow) var(--ease) both; }
+main > :nth-child(2) { animation-delay: 40ms; }
+main > :nth-child(3) { animation-delay: 80ms; }
+main > :nth-child(4) { animation-delay: 120ms; }
+main > :nth-child(n + 5) { animation-delay: 160ms; }
+.auth-card { animation: rise var(--slow) var(--ease) both; }
+
+
+/* ---------- Feedback on things you can press ---------- */
+a, button, .btn, input, select, textarea,
+.book-card, .entry, .stat, .cal button, .passfail button, .segmented button, .tabs button {
+  transition:
+    color var(--fast) var(--ease),
+    background-color var(--fast) var(--ease),
+    border-color var(--fast) var(--ease),
+    box-shadow var(--fast) var(--ease),
+    transform var(--fast) var(--ease),
+    opacity var(--fast) var(--ease);
+}
+
+/* A press visibly gives a little, so a tap feels registered before the server answers */
+.btn:active:not(:disabled),
+.passfail button:active,
+.segmented button:active,
+.cal button:active:not(:disabled) { transform: scale(0.97); }
+
+/* Cards that open something lift slightly under the pointer (mouse only, not touch) */
+@media (hover: hover) {
+  .book-card:hover, .entry:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.1);
+  }
+  .entry:hover { filter: none; }
+  .cal button:not(:disabled):hover { transform: translateY(-1px); }
+}
+
+/* Tab underline grows in from the middle when a tab becomes active */
+.tabs button { position: relative; }
+.tabs button.active { animation: tab-on var(--med) var(--ease); }
+
+
+/* ---------- New content and results ---------- */
+/* Fresh rows and cards fade in after a search, a filter or a save, so the update is noticed */
+tbody tr { animation: fade-in var(--med) var(--ease) both; }
+.book-card { animation: rise var(--med) var(--ease) both; }
+.book-card:nth-child(2) { animation-delay: 30ms; }
+.book-card:nth-child(3) { animation-delay: 60ms; }
+.book-card:nth-child(4) { animation-delay: 90ms; }
+.book-card:nth-child(n + 5) { animation-delay: 120ms; }
+[role="tabpanel"]:not([hidden]) { animation: fade-in var(--med) var(--ease); }
+.cal button { animation: fade-in var(--med) var(--ease) both; }
+
+/* Messages slide down into place; ui.js replays this when the same box shows a new message */
+.alert:not(.hidden) { animation: drop-in var(--med) var(--ease); }
+
+
+/* ---------- Popups ---------- */
+dialog[open] { animation: pop-in var(--med) var(--ease); }
+dialog[open]::backdrop { animation: fade-in var(--med) var(--ease); }
+
+
+/* ---------- Loading ---------- */
+/* A button that is waiting on the server shows a small spinner beside its label */
+.btn[aria-busy="true"]::before {
+  content: ""; width: 14px; height: 14px; border-radius: 50%;
+  border: 2px solid currentColor; border-right-color: transparent;
+  animation: spin 0.7s linear infinite;
+}
+/* "Loading…" text breathes gently, so a slow connection doesn't look frozen */
+.empty.loading, .stat .value.loading { animation: breathe 1.2s ease-in-out infinite; }
+
+
+/* ---------- Mobile menu (librarian, narrow screens) ---------- */
+.sidebar .drawer { display: grid; grid-template-rows: 1fr; transition: grid-template-rows var(--med) var(--ease); }
+.sidebar .drawer > div { overflow: hidden; display: flex; flex-direction: column; gap: 24px; min-height: 0; }
+
+
+@keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes drop-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes pop-in { from { opacity: 0; transform: translateY(8px) scale(0.98); } to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes breathe { 50% { opacity: 0.45; } }
+@keyframes tab-on { from { border-bottom-color: transparent; } }
+
+
+/* ---------- Reduced motion: keep every state change, drop the movement ---------- */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after, ::backdrop {
+    animation-duration: 1ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 1ms !important;
+  }
+  @view-transition { navigation: none; }
+  .btn[aria-busy="true"]::before { animation: none; border-right-color: currentColor; opacity: 0.6; }
+}

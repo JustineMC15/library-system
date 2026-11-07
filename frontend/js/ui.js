@@ -157,6 +157,12 @@ function showAlert(el, message, kind = "error") {
   el.className = `alert ${kind}`;
   el.textContent = message;
   el.setAttribute("role", kind === "error" ? "alert" : "status");
+  // Replay the slide-in even when the box was already showing, and bring it into view
+  el.style.animation = "none";
+  void el.offsetWidth;
+  el.style.animation = "";
+  const r = el.getBoundingClientRect();
+  if (r.top < 64 || r.bottom > innerHeight) el.scrollIntoView({ block: "center", behavior: "smooth" });
 }
 
 function hideAlert(el) {
@@ -164,22 +170,118 @@ function hideAlert(el) {
   el.className = "alert hidden";
 }
 
-function emptyRow(colspan, message) {
-  return `<tr><td colspan="${colspan}" class="empty">${esc(message)}</td></tr>`;
+// loading = true makes the text breathe so a slow load doesn't look frozen
+function emptyRow(colspan, message, loading = false) {
+  return `<tr><td colspan="${colspan}" class="empty ${loading ? "loading" : ""}">${esc(message)}</td></tr>`;
 }
 
-// Disables a button and shows a loading label while an action runs
+// Disables a button and shows a spinner and a loading label while an action runs
 async function busy(button, fn, label = "Working…") {
   const old = button.textContent;
   button.disabled = true;
+  button.setAttribute("aria-busy", "true");
   button.textContent = label;
   try {
     return await fn();
   } finally {
     button.disabled = false;
+    button.removeAttribute("aria-busy");
     button.textContent = old;
   }
 }
+
+
+/* ---------- More detail ---------- */
+
+// "just now", "12 min", "2 h 5 min", "3 days": how long something has been waiting
+function waited(dateTime) {
+  const mins = Math.floor((Date.now() - new Date(String(dateTime).replace(" ", "T"))) / 60000);
+  if (isNaN(mins) || mins < 1) return "just now";
+  if (mins < 60) return `${mins} min`;
+  const h = Math.floor(mins / 60);
+  if (h < 24) return `${h} h${mins % 60 ? ` ${mins % 60} min` : ""}`;
+  return plural(Math.floor(h / 24), "day");
+}
+
+// "3 working days left", "Due today", "2 working days overdue"
+function dueText(dueDate, offDays) {
+  if (!dueDate) return "";
+  const today = todayIso();
+  if (dueDate === today) return "Due today";
+  if (dueDate > today) return `${plural(workingDaysBetween(today, dueDate, offDays), "working day")} left`;
+  return `${plural(workingDaysBetween(dueDate, today, offDays), "working day")} overdue`;
+}
+
+
+/* ---------- Forms: messages under fields, password toggle ---------- */
+
+// Shows a message under one field (or clears it with ""), and marks the field for screen readers
+function fieldError(id, message) {
+  const input = $(id);
+  const hintId = `${id}-error`;
+  let hint = document.getElementById(hintId);
+  if (!hint) {
+    hint = document.createElement("p");
+    hint.id = hintId;
+    hint.className = "field-error";
+    (input.closest(".inline") || input).insertAdjacentElement("afterend", hint);
+  }
+  hint.textContent = message;
+  input.classList.toggle("invalid", !!message);
+  input.setAttribute("aria-invalid", String(!!message));
+  if (message) input.setAttribute("aria-describedby", hintId);
+  else input.removeAttribute("aria-describedby");
+  return !message;
+}
+
+// Adds a Show/Hide button to every password field on the page
+function addPasswordToggles() {
+  document.querySelectorAll('input[type="password"]').forEach((input) => {
+    const wrap = document.createElement("div");
+    wrap.className = "inline";
+    input.replaceWith(wrap);
+    wrap.appendChild(input);
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "btn secondary";
+    btn.textContent = "Show";
+    btn.setAttribute("aria-label", `Show ${input.labels[0] ? input.labels[0].textContent : "password"}`);
+    btn.addEventListener("click", () => {
+      const show = input.type === "password";
+      input.type = show ? "text" : "password";
+      btn.textContent = show ? "Hide" : "Show";
+      btn.setAttribute("aria-pressed", String(show));
+    });
+    wrap.appendChild(btn);
+  });
+}
+
+
+/* ---------- Tables on phones ----------
+   Each cell gets its column name (data-label) so responsive.css can show rows as cards. */
+
+function labelTables() {
+  document.querySelectorAll("table").forEach((t) => {
+    t.classList.add("stack");
+    const heads = [...t.querySelectorAll("thead th")].map((th) => th.textContent.trim());
+    t.querySelectorAll("tbody tr").forEach((tr) => {
+      [...tr.children].forEach((td, i) => {
+        if (!td.hasAttribute("colspan")) td.dataset.label = heads[i] || "";
+      });
+    });
+  });
+}
+new MutationObserver(labelTables).observe(document.body, { childList: true, subtree: true });
+labelTables();
+
+// Clicking the dark area outside any popup closes it, like pressing Cancel
+document.addEventListener("click", (e) => {
+  if (e.target.tagName === "DIALOG" && e.target.open) {
+    const r = e.target.getBoundingClientRect();
+    const inside = e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top && e.clientY <= r.bottom;
+    if (!inside) e.target.close();
+  }
+});
 
 
 /* ---------- Popups ----------
