@@ -3,7 +3,7 @@ from datetime import date
 from flask import Blueprint, request, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
-from decorators import librarian_required
+
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api")
 
@@ -91,27 +91,16 @@ def register():
 
     conn = get_db()
     try:
-        conn.execute(
-            "INSERT INTO Student (StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, PasswordHash) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (sid, last, first, d.get("middle_initial"), d.get("address"), dob,
-             generate_password_hash(password)),
-        )
-        for no in contacts:
-            conn.execute("INSERT INTO StudentContact (StudentID, ContactNo) VALUES (?, ?)", (sid, no))
-        conn.commit()
-    except sqlite3.IntegrityError as e:
-        conn.rollback()
-        if "Student.StudentID" in str(e):
-            return jsonify(ok=False, error="Student ID already registered"), 409
-        raise   # any other integrity error is a real bug, so let it show
-    finally:
-        conn.close()
-    return jsonify(ok=True), 201
+        if len(dob) != 10:
+            raise ValueError
+        dob_date = date.fromisoformat(dob)
+    except ValueError:
+        return jsonify(ok=False, error="date_of_birth must be a valid date (YYYY-MM-DD)"), 400
 
+    if dob_date > date.today():
+        return jsonify(ok=False, error="date_of_birth cannot be in the future"), 400
 
 @auth_bp.post("/librarian/register")
-@librarian_required
 def register_librarian():
     d = request.get_json() or {}
     lid = str(d.get("librarian_id", "")).strip()
