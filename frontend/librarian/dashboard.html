@@ -7,7 +7,51 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Librarian Dashboard</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html" class="active">Dashboard</a>
+      <a href="verify.html">Requests</a>
+      <a href="return.html">Returns &amp; fines</a>
+      <a href="catalog.html">Catalog</a>
+      <a href="nonworking.html">Non-working days</a>
+      <a href="register.html">Add librarian</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Dashboard</h1>
+        <p class="muted">Requests are handled first come, first served.</p>
+      </div>
+      <a class="btn" href="verify.html">Review requests</a>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="label">Borrow requests</div><div class="value" id="s-borrow">–</div></div>
+      <div class="stat"><div class="label">Renewal requests</div><div class="value" id="s-renew">–</div></div>
+      <div class="stat"><div class="label">Return requests</div><div class="value" id="s-return">–</div></div>
+      <div class="stat"><div class="label">Unpaid fines</div><div class="value" id="s-fines">–</div></div>
+      <div class="stat"><div class="label">Books out / total</div><div class="value" id="s-books">–</div></div>
+    </div>
+
+    <section class="card">
+      <div class="page-head" style="margin-bottom:8px">
+        <h2 style="margin:0">Next in line</h2>
+        <a href="verify.html">See all</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th>Type</th><th>Student</th><th>Book</th><th>Requested</th></tr></thead>
+          <tbody id="next"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/dashboard.js"></script>
 </body>
 </html>

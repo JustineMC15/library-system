@@ -7,7 +7,49 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Browse Books</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">My books</a>
+      <a href="browse.html" class="active">Browse</a>
+      <a href="denied.html">Denied requests</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Browse books</h1>
+        <p class="muted" id="count">Loading…</p>
+      </div>
+    </div>
+
+    <form id="filters" class="card filters">
+      <div class="field">
+        <label for="search">Search</label>
+        <input id="search" type="search" placeholder="Title, author, ISBN or call number">
+      </div>
+      <div class="field">
+        <label for="type">Type</label>
+        <select id="type">
+          <option value="">All types</option>
+          <option>Physical</option>
+          <option>Digital</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="year">Year</label>
+        <input id="year" type="number" placeholder="Any" min="1900" max="2100">
+      </div>
+      <label class="checkbox"><input id="available" type="checkbox"> Available only</label>
+    </form>
+
+    <div id="alert" class="alert hidden" role="alert"></div>
+    <div id="grid" class="book-grid"></div>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/student/browse.js"></script>
 </body>
 </html>

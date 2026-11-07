@@ -3,11 +3,62 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Book Catalog</title>
+  <title>Catalog</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Book Catalog</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="verify.html">Requests</a>
+      <a href="return.html">Returns &amp; fines</a>
+      <a href="catalog.html" class="active">Catalog</a>
+      <a href="nonworking.html">Non-working days</a>
+      <a href="register.html">Add librarian</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Catalog</h1>
+        <p class="muted" id="count">Loading…</p>
+      </div>
+    </div>
+
+    <form id="filters" class="card filters">
+      <div class="field">
+        <label for="search">Search</label>
+        <input id="search" type="search" placeholder="Title, author, ISBN or call number">
+      </div>
+      <div class="field">
+        <label for="type">Type</label>
+        <select id="type">
+          <option value="">All types</option>
+          <option>Physical</option>
+          <option>Digital</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="year">Year</label>
+        <input id="year" type="number" placeholder="Any" min="1900" max="2100">
+      </div>
+      <label class="checkbox"><input id="available" type="checkbox"> Available only</label>
+    </form>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Call number</th><th>Title</th><th>ISBN</th><th>Year</th><th>Type</th><th>Status</th></tr></thead>
+          <tbody id="books"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/catalog.js"></script>
 </body>
 </html>

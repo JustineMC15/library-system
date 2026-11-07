@@ -3,11 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Process Return</title>
+  <title>Returns and Fines</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Process Return</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="verify.html">Requests</a>
+      <a href="return.html" class="active">Returns &amp; fines</a>
+      <a href="catalog.html">Catalog</a>
+      <a href="nonworking.html">Non-working days</a>
+      <a href="register.html">Add librarian</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Returns &amp; fines</h1>
+        <p class="muted">Approve a return once the book is back on the desk. Late books cost ₱2 per working day.</p>
+      </div>
+    </div>
+
+    <div id="alert" class="alert hidden" role="alert"></div>
+
+    <section class="card">
+      <h2>Waiting to be returned</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Book</th><th>Due</th><th>Requested</th><th></th></tr></thead>
+          <tbody id="returns"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="page-head" style="margin-bottom:8px">
+        <h2 style="margin:0">Fines</h2>
+        <label class="checkbox"><input type="checkbox" id="unpaid-only" checked> Unpaid only</label>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Student</th><th>Book</th><th>Returned</th><th>Fine</th><th>Status</th><th></th></tr></thead>
+          <tbody id="fines"><tr><td colspan="6" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/return.js"></script>
 </body>
 </html>

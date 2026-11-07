@@ -7,7 +7,37 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Book Details</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">My books</a>
+      <a href="browse.html" class="active">Browse</a>
+      <a href="denied.html">Denied requests</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <p><a href="browse.html">← Back to browse</a></p>
+    <div id="alert" class="alert hidden" role="alert"></div>
+
+    <section id="book" class="card">
+      <p class="empty">Loading…</p>
+    </section>
+
+    <section class="card">
+      <h2>Before you borrow</h2>
+      <ul class="muted">
+        <li>You can hold up to 3 books at a time.</li>
+        <li>Loans last 7 working days (Sundays and holidays don't count).</li>
+        <li>Overdue books cost ₱2 per working day, per book.</li>
+        <li>Requests are denied if you have overdue books, unpaid fines, or a suspension.</li>
+        <li>Show your school ID at the desk when you pick up a physical book.</li>
+      </ul>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/student/book.js"></script>
 </body>
 </html>

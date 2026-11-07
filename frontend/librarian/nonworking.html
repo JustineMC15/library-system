@@ -3,11 +3,60 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Non-Working Days</title>
+  <title>Non-working Days</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Non-Working Days</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="verify.html">Requests</a>
+      <a href="return.html">Returns &amp; fines</a>
+      <a href="catalog.html">Catalog</a>
+      <a href="nonworking.html" class="active">Non-working days</a>
+      <a href="register.html">Add librarian</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Non-working days</h1>
+        <p class="muted">These days don't count toward due dates or fines. Sundays are skipped automatically.</p>
+      </div>
+    </div>
+
+    <div id="alert" class="alert hidden" role="alert"></div>
+
+    <form id="form" class="card filters" style="grid-template-columns: 1fr 1fr auto">
+      <div class="field">
+        <label for="date">Date</label>
+        <input id="date" type="date" required>
+      </div>
+      <div class="field">
+        <label for="reason">Reason</label>
+        <select id="reason">
+          <option>Holiday</option>
+          <option>School suspension</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <button class="btn" type="submit">Add day</button>
+    </form>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Date</th><th>Day</th><th>Reason</th><th>Added by</th><th></th></tr></thead>
+          <tbody id="days"><tr><td colspan="5" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/nonworking.js"></script>
 </body>
 </html>

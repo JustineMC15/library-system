@@ -3,11 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Borrow Denied</title>
+  <title>Denied Requests</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Borrow Denied</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">My books</a>
+      <a href="browse.html">Browse</a>
+      <a href="denied.html" class="active">Denied requests</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Denied requests</h1>
+        <p class="muted">Every reason a request was turned down. Fix these, then request the book again.</p>
+      </div>
+    </div>
+
+    <section class="card">
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Book</th><th>Requested</th><th>Reasons</th><th></th></tr></thead>
+          <tbody id="list"><tr><td colspan="4" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>What each reason means</h2>
+      <dl class="facts">
+        <dt>Unreturned books</dt><dd>You have a book past its due date.</dd>
+        <dt>Unpaid fines</dt><dd>Pay your overdue fine at the library desk.</dd>
+        <dt>Borrow limit reached</dt><dd>You already hold 3 books. Return one first.</dd>
+        <dt>No valid Student ID</dt><dd>Bring your school ID when you pick up the book.</dd>
+        <dt>Suspension of privileges</dt><dd>Your borrowing is suspended. Ask the librarian.</dd>
+      </dl>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/student/denied.js"></script>
 </body>
 </html>

@@ -3,11 +3,58 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Librarian Register</title>
+  <title>Add Librarian</title>
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Librarian Register</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html">Dashboard</a>
+      <a href="verify.html">Requests</a>
+      <a href="return.html">Returns &amp; fines</a>
+      <a href="catalog.html">Catalog</a>
+      <a href="nonworking.html">Non-working days</a>
+      <a href="register.html" class="active">Add librarian</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>Add a librarian</h1>
+        <p class="muted">Only a logged-in librarian can create another librarian account.</p>
+      </div>
+    </div>
+
+    <section class="card" style="max-width:520px">
+      <div id="alert" class="alert hidden" role="alert"></div>
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="librarian_id">Librarian ID</label>
+          <input id="librarian_id" placeholder="L-002" required>
+        </div>
+        <div class="field">
+          <label for="librarian_name">Full name</label>
+          <input id="librarian_name" autocomplete="off" required>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="password">Password</label>
+            <input id="password" type="password" autocomplete="new-password" required>
+          </div>
+          <div class="field">
+            <label for="confirm">Confirm password</label>
+            <input id="confirm" type="password" autocomplete="new-password" required>
+          </div>
+        </div>
+        <button class="btn" type="submit">Create librarian account</button>
+      </form>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/register.js"></script>
 </body>
 </html>

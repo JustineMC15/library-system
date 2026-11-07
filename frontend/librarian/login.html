@@ -7,7 +7,32 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Librarian Login</h1>
-  <!-- Build this page here, following the Figma. -->
+  <div class="auth-page">
+    <div class="auth-card">
+      <div class="logo">LIB</div>
+      <h1>Librarian Login</h1>
+      <p class="sub">Sign in to manage requests and the catalog.</p>
+
+      <div id="alert" class="alert hidden" role="alert"></div>
+
+      <form id="form" novalidate>
+        <div class="field">
+          <label for="id">Librarian ID</label>
+          <input id="id" name="id" placeholder="L-001" autocomplete="username" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" required>
+        </div>
+        <button class="btn block" type="submit">Log in</button>
+      </form>
+
+      <p class="switch">New librarian accounts are added by a logged-in librarian.</p>
+      <p class="switch"><a href="../student/login.html">Student login</a></p>
+    </div>
+  </div>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/librarian/login.js"></script>
 </body>
 </html>

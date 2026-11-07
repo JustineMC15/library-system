@@ -7,7 +7,59 @@
   <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-  <h1>Student Dashboard</h1>
-  <!-- Build this page here, following the Figma. -->
+  <header class="topbar">
+    <span class="brand">Library System</span>
+    <nav>
+      <a href="dashboard.html" class="active">My books</a>
+      <a href="browse.html">Browse</a>
+      <a href="denied.html">Denied requests</a>
+    </nav>
+    <div class="user"><span id="who"></span><button id="logout" class="btn small ghost">Log out</button></div>
+  </header>
+
+  <main>
+    <div class="page-head">
+      <div>
+        <h1>My books</h1>
+        <p class="muted">Loans last 7 working days. You can renew a loan up to 3 times.</p>
+      </div>
+      <a class="btn" href="browse.html">Borrow a book</a>
+    </div>
+
+    <div id="alert" class="alert hidden" role="alert"></div>
+
+    <div class="stats">
+      <div class="stat"><div class="label">Borrowed</div><div class="value" id="stat-borrowed">–</div></div>
+      <div class="stat"><div class="label">Waiting for approval</div><div class="value" id="stat-pending">–</div></div>
+      <div class="stat"><div class="label">Next due date</div><div class="value" id="stat-due">–</div></div>
+    </div>
+
+    <section class="card">
+      <h2>Current and pending loans</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Book</th><th>Status</th><th>Borrowed</th><th>Due</th><th>Renewals</th><th></th></tr>
+          </thead>
+          <tbody id="loans">
+            <tr><td colspan="6" class="empty">Loading…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Returned</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Book</th><th>Borrowed</th><th>Status</th></tr></thead>
+          <tbody id="history"><tr><td colspan="3" class="empty">Loading…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <script src="../js/api.js"></script>
+  <script src="../js/student/dashboard.js"></script>
 </body>
 </html>
