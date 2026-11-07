@@ -1,7 +1,9 @@
 import sqlite3
+from datetime import date
 from flask import Blueprint, request, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
+from decorators import librarian_required
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api")
 
@@ -11,13 +13,13 @@ def login():
     data = request.get_json() or {}
     role = data.get("role")                    # "student" or "librarian"
     user_id = str(data.get("id", "")).strip()
-    password = data.get("password", "")
+    password = str(data.get("password", ""))
 
     conn = get_db()
     try:
         if role == "student":
             row = conn.execute(
-                "SELECT StudentID AS id, PasswordHash, Status FROM Student WHERE StudentID = ?",
+                "SELECT StudentID AS id, PasswordHash FROM Student WHERE StudentID = ?",
                 (user_id,),
             ).fetchone()
         elif role == "librarian":
@@ -32,9 +34,8 @@ def login():
 
     if row is None or not check_password_hash(row["PasswordHash"], password):
         return jsonify(ok=False, error="Invalid ID or password"), 401
-    if role == "student" and row["Status"] == "Suspended":
-        return jsonify(ok=False, error="Account suspended"), 403
 
+    # Suspended students can still log in. The librarian denies requests instead.
     session.clear()
     session["user_id"] = row["id"]
     session["role"] = role
@@ -53,27 +54,85 @@ def me():
         return jsonify(ok=False, error="Not logged in"), 401
     return jsonify(ok=True, id=session["user_id"], role=session["role"])
 
+
+def _clean_contacts(raw):
+    """Returns (set_of_numbers, error_message)."""
+    if raw is None:
+        return set(), None
+    if not isinstance(raw, list):
+        return None, "contact_numbers must be a list"
+    numbers = {str(n).strip() for n in raw if n is not None}
+    numbers.discard("")
+    return numbers, None
+
+
 @auth_bp.post("/register")
 def register():
     d = request.get_json() or {}
-    needed = ["student_id", "last_name", "first_name", "date_of_birth", "password"]
-    if any(not str(d.get(k, "")).strip() for k in needed):
+    sid = str(d.get("student_id", "")).strip()
+    last = str(d.get("last_name", "")).strip()
+    first = str(d.get("first_name", "")).strip()
+    dob = str(d.get("date_of_birth", "")).strip()
+    password = str(d.get("password", ""))
+
+    if not all([sid, last, first, dob, password]):
         return jsonify(ok=False, error="Missing required fields"), 400
 
-    sid = d["student_id"].strip()
+    try:
+        if len(dob) != 10:
+            raise ValueError
+        date.fromisoformat(dob)
+    except ValueError:
+        return jsonify(ok=False, error="date_of_birth must be a valid date (YYYY-MM-DD)"), 400
+
+    contacts, err = _clean_contacts(d.get("contact_numbers"))
+    if err:
+        return jsonify(ok=False, error=err), 400
+
     conn = get_db()
     try:
         conn.execute(
             "INSERT INTO Student (StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, PasswordHash) "
             "VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (sid, d["last_name"].strip(), d["first_name"].strip(), d.get("middle_initial"),
-             d.get("address"), d["date_of_birth"], generate_password_hash(d["password"])),
+            (sid, last, first, d.get("middle_initial"), d.get("address"), dob,
+             generate_password_hash(password)),
         )
-        for no in d.get("contact_numbers", []):
+        for no in contacts:
             conn.execute("INSERT INTO StudentContact (StudentID, ContactNo) VALUES (?, ?)", (sid, no))
         conn.commit()
-    except sqlite3.IntegrityError:
-        return jsonify(ok=False, error="Student ID already registered"), 409
+    except sqlite3.IntegrityError as e:
+        conn.rollback()
+        if "Student.StudentID" in str(e):
+            return jsonify(ok=False, error="Student ID already registered"), 409
+        raise   # any other integrity error is a real bug, so let it show
+    finally:
+        conn.close()
+    return jsonify(ok=True), 201
+
+
+@auth_bp.post("/librarian/register")
+@librarian_required
+def register_librarian():
+    d = request.get_json() or {}
+    lid = str(d.get("librarian_id", "")).strip()
+    name = str(d.get("librarian_name", "")).strip()
+    password = str(d.get("password", ""))
+
+    if not all([lid, name, password]):
+        return jsonify(ok=False, error="Missing required fields"), 400
+
+    conn = get_db()
+    try:
+        conn.execute(
+            "INSERT INTO Librarian (LibrarianID, LibrarianName, PasswordHash) VALUES (?, ?, ?)",
+            (lid, name, generate_password_hash(password)),
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        conn.rollback()
+        if "Librarian.LibrarianID" in str(e):
+            return jsonify(ok=False, error="Librarian ID already registered"), 409
+        raise
     finally:
         conn.close()
     return jsonify(ok=True), 201
