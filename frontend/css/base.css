@@ -142,9 +142,19 @@ main { max-width: 1200px; margin: 0 auto; padding: 32px; }
 
 /* ---------- Login / register ---------- */
 /* The library's own shelves behind the login and register pages (photo taken at the OLOPSC library) */
+/* The photo sits on its own layer so it can be blurred without blurring the header or the card.
+   It's scaled up slightly so the blur doesn't show soft edges at the screen border. */
 .auth-body {
   min-height: 100vh; display: flex; flex-direction: column;
-  background: var(--indigo) url("../assets/library.jpg") center / cover no-repeat;
+  background: var(--indigo); position: relative; isolation: isolate; overflow-x: hidden;
+}
+.auth-body::before {
+  content: ""; position: fixed; inset: 0; z-index: -1;
+  background: url("../assets/library.jpg") center / cover no-repeat;
+  filter: blur(6px); transform: scale(1.05);
+}
+@media (max-width: 960px) {
+  .auth-body::before { background-image: url("../assets/library-small.jpg"); }
 }
 .site-bar {
   display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
