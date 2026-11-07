@@ -4,9 +4,8 @@
    Usage in a page script:   const me = await startPage("student", "browse");
    The page's HTML needs <div id="shell" data-role="student"></div> before <main>. */
 
-// TODO: put the school's logo in frontend/assets/ and its website here.
-// While url is empty the logo is plain text, not a link (no dead links).
-const SCHOOL = { name: "Library", logo: "", url: "" };
+// The school's logo (in frontend/assets/) links to the school's website (design brief, principle 6).
+const SCHOOL = { name: "OLOPS College Library", logo: "olops-logo.png", url: "https://www.olopsc.edu.ph/" };
 
 const NAV = {
   student: [
@@ -25,11 +24,12 @@ const NAV = {
 
 function logoHtml() {
   const mark = SCHOOL.logo
-    ? `<span class="mark"><img src="../assets/${esc(SCHOOL.logo)}" alt=""></span>`
+    ? `<img class="crest" src="../assets/${esc(SCHOOL.logo)}" alt="">`
     : `<span class="mark" aria-hidden="true">[LOGO]</span>`;
   const inner = `${mark}<span>${esc(SCHOOL.name)}</span>`;
   return SCHOOL.url
-    ? `<a class="logo" href="${esc(SCHOOL.url)}" target="_blank" rel="noopener">${inner}</a>`
+    ? `<a class="logo" href="${esc(SCHOOL.url)}" target="_blank" rel="noopener"
+         title="Opens the OLOPS College website in a new tab">${inner}</a>`
     : `<span class="logo">${inner}</span>`;
 }
 

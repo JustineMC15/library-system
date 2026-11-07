@@ -52,7 +52,11 @@ a { color: var(--blue); }
   display: inline-flex; align-items: center; justify-content: center;
   font-size: 14px; font-weight: 700; flex-shrink: 0; overflow: hidden;
 }
-.logo .mark img { width: 100%; height: 100%; object-fit: contain; }
+/* White plate so the blue crest doesn't disappear into the navy bar */
+.logo .crest { width: 48px; height: 48px; object-fit: contain; flex-shrink: 0; background: var(--white); border-radius: var(--radius); padding: 4px; }
+.logo span { line-height: 1.2; }
+.sidebar .logo { align-items: center; }
+.auth-card .logo .crest { width: 72px; height: 72px; padding: 0; }
 
 /* ---------- Student top bar ---------- */
 .topbar {
