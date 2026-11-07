@@ -56,7 +56,6 @@ a { color: var(--blue); }
 .logo .crest { width: 48px; height: 48px; object-fit: contain; flex-shrink: 0; background: var(--white); border-radius: var(--radius); padding: 4px; }
 .logo span { line-height: 1.2; }
 .sidebar .logo { align-items: center; }
-.auth-card .logo .crest { width: 72px; height: 72px; padding: 0; }
 
 /* ---------- Student top bar ---------- */
 .topbar {
@@ -133,17 +132,37 @@ main { max-width: 1200px; margin: 0 auto; padding: 32px; }
 .entry.light .sub { color: var(--muted); }
 
 /* ---------- Login / register ---------- */
-.auth-page {
-  min-height: 100vh; display: flex; align-items: center; justify-content: center;
-  padding: 24px 16px; background: var(--navy);
+/* The library's own shelves behind the login and register pages (photo taken at the OLOPSC library) */
+.auth-body {
+  min-height: 100vh; display: flex; flex-direction: column;
+  background: var(--navy) url("../assets/library.jpg") center / cover no-repeat;
 }
+@media (max-width: 960px) {
+  .auth-body { background-image: url("../assets/library-small.jpg"); }
+}
+.site-bar {
+  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  padding: 8px 32px; min-height: 64px; background: var(--navy); color: var(--white);
+}
+.site-bar .name { display: flex; flex-direction: column; text-transform: uppercase; }
+.site-bar .name small { text-transform: none; font-weight: 400; font-size: 14px; color: #E2E8F0; }
+.site-bar nav { display: flex; gap: 8px; flex-wrap: wrap; }
+.site-bar nav a {
+  color: var(--white); text-decoration: none; text-transform: uppercase;
+  padding: 8px 16px; border-radius: var(--radius);
+}
+.site-bar nav a:hover { background: rgba(255, 255, 255, 0.12); }
+.auth-page {
+  flex: 1; display: flex; align-items: center; justify-content: center;
+  padding: 32px 16px;
+}
+/* Shadow only here: it lifts the form off a busy photo */
 .auth-card {
   width: 100%; max-width: 416px; background: var(--white);
   border-radius: var(--radius-card); padding: 40px 32px;
+  box-shadow: 0 16px 48px rgba(15, 23, 42, 0.35);
 }
 .auth-card.wide { max-width: 576px; }
-.auth-card .logo { margin-bottom: 16px; color: var(--navy); }
-.auth-card .logo .mark { background: var(--navy); color: var(--white); }
 .auth-card .sub { color: var(--muted); margin: 0 0 24px; }
 .auth-card .switch { margin-top: 16px; text-align: center; color: var(--muted); }
 
@@ -369,7 +388,8 @@ tr.first .pos { background: var(--navy); color: var(--white); border-color: var(
 @media (max-width: 700px) {
   main { padding: 24px 16px; }
   .btn, .btn.small, input, select, .segmented button, .tabs button, .topbar nav a, .sidebar nav a { min-height: 44px; }
-  .topbar nav a, .sidebar nav a { display: inline-flex; align-items: center; }
+  .topbar nav a, .sidebar nav a, .site-bar nav a { display: inline-flex; align-items: center; min-height: 44px; }
+  .site-bar { padding: 8px 16px; }
   .topbar { padding: 8px 16px; gap: 8px; }
   .topbar nav { order: 3; width: 100%; }
   .row, .row-3, .filters { grid-template-columns: 1fr; }

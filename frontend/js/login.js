@@ -4,7 +4,7 @@ const role = form.dataset.role;
 const idField = form.querySelector("input:not([type=password])");
 const label = role === "student" ? "Student ID" : "Librarian ID";
 
-$("logo").outerHTML = logoHtml();
+renderSiteBar();
 
 if (params.get("registered")) {
   showAlert("alert", "Account created. Log in with your new password.", "success");

@@ -4,7 +4,7 @@ const form = $("form");
 const contacts = $("contacts");
 const val = (id) => $(id).value.trim();
 
-$("logo").outerHTML = logoHtml();
+renderSiteBar();
 
 function addContact(focus = false) {
   const n = contacts.children.length + 1;

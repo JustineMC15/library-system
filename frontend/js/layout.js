@@ -7,6 +7,12 @@
 // The school's logo (in frontend/assets/) links to the school's website (design brief, principle 6).
 const SCHOOL = { name: "OLOPS College Library", logo: "olops-logo.png", url: "https://www.olopsc.edu.ph/" };
 
+// Links in the header of the login and register pages (real pages on the school site only)
+const SCHOOL_LINKS = [
+  { href: "https://www.olopsc.edu.ph/about", label: "About OLOPSC" },
+  { href: "https://www.olopsc.edu.ph/admissions/", label: "Admissions" },
+];
+
 const NAV = {
   student: [
     { key: "dashboard", href: "dashboard.html", label: "Dashboard" },
@@ -22,15 +28,29 @@ const NAV = {
   ],
 };
 
-function logoHtml() {
+function logoHtml(subtitle = "") {
   const mark = SCHOOL.logo
     ? `<img class="crest" src="../assets/${esc(SCHOOL.logo)}" alt="">`
     : `<span class="mark" aria-hidden="true">[LOGO]</span>`;
-  const inner = `${mark}<span>${esc(SCHOOL.name)}</span>`;
+  const inner = `${mark}<span class="name"><span>${esc(SCHOOL.name)}</span>${subtitle ? `<small>${esc(subtitle)}</small>` : ""}</span>`;
   return SCHOOL.url
     ? `<a class="logo" href="${esc(SCHOOL.url)}" target="_blank" rel="noopener"
          title="Opens the OLOPS College website in a new tab">${inner}</a>`
     : `<span class="logo">${inner}</span>`;
+}
+
+// Header for the login and register pages: logo on the left, school-site links on the right.
+// The page needs <div id="site-bar"></div> at the top of <body>.
+function renderSiteBar() {
+  const el = document.getElementById("site-bar");
+  if (!el) return;
+  const links = SCHOOL_LINKS.map((l) =>
+    `<a href="${esc(l.href)}" target="_blank" rel="noopener">${esc(l.label)}</a>`).join("");
+  el.outerHTML = `
+    <header class="site-bar">
+      ${logoHtml("Marikina City, Philippines")}
+      <nav aria-label="OLOPS College website">${links}</nav>
+    </header>`;
 }
 
 function renderShell(role, active, me) {
