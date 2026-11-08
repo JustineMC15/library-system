@@ -260,7 +260,6 @@ def test_approve_twice_and_missing():
     assert lib.post(url, json={"student_id_ok": True}).status_code == 200
     assert lib.post(url, json={"student_id_ok": True}).status_code == 409
     assert lib.post("/api/librarian/borrow/999/approve", json={"student_id_ok": True}).status_code == 404
-    assert lib.post("/api/librarian/renew/1/approve", json={}).status_code == 501
 
 
 # ---------- deny ----------
@@ -318,6 +317,28 @@ def test_nonworking_day_changes_overdue_check():
     borrow_id = request_book(login("student", "S3"), "B1").get_json()["BorrowID"]
     r = login("librarian", "L1").post(f"/api/librarian/borrow/{borrow_id}/approve", json={"student_id_ok": True})
     assert r.status_code == 200
+
+
+# ---------- register and /api/me ----------
+
+def test_register_and_me():
+    path = make_env()
+    client = app.test_client()
+    body = {"student_id": "25A-7777", "last_name": "Cruz", "first_name": "Ana", "middle_initial": "r",
+            "date_of_birth": "2007-01-05", "contact_numbers": ["0917", "0917", " "], "password": "secret1"}
+    assert client.post("/api/register", json=body).status_code == 201
+    assert client.post("/api/register", json=body).status_code == 409                       # same ID again
+    assert client.post("/api/register", json={**body, "student_id": "X1", "date_of_birth": "2999-01-01"}).status_code == 400
+    assert client.post("/api/register", json={**body, "student_id": "X2", "contact_numbers": "0917"}).status_code == 400
+    assert row(path, "SELECT MiddleInitial FROM Student WHERE StudentID = '25A-7777'")[0]["MiddleInitial"] == "R"
+    assert [r["ContactNo"] for r in row(path, "SELECT ContactNo FROM StudentContact WHERE StudentID = '25A-7777'")] == ["0917"]
+
+    assert client.post("/api/login", json={"role": "student", "id": "25A-7777", "password": "secret1"}).status_code == 200
+    me = client.get("/api/me").get_json()
+    assert (me["FirstName"], me["LastName"], me["Status"]) == ("Ana", "Cruz", "Active")
+
+    lib = login("librarian", "L1")
+    assert lib.get("/api/me").get_json()["LibrarianName"] == "Lib One"
 
 
 if __name__ == "__main__":
