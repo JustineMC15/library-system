@@ -11,11 +11,11 @@ Fundamentals of DB group project: HTML, CSS, JavaScript, Python (Flask) and SQLi
 2. Install the packages: `pip install -r requirements.txt`
 3. Build the database (also run this again whenever `books.csv` or `schema.sql` changes): `python backend/seed.py`
 4. Start the server: `python backend/app.py`
-5. Open http://localhost:5000/api-test.html (the book list should appear)
+5. Open http://localhost:5000/ (the book list should appear)
 
 Dummy logins (made by seed.py, for testing only):
 
-* Students: IDs `25A-0058` to `25A-0061`, password `student123`
+* Students: IDs `25A-0058, 25A-1058, 25A-2058, 25A-3058`, password `student123`
 * Librarian: ID `L-001`, password `librarian123`
 
 ## Who edits what
