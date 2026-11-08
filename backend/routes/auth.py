@@ -52,7 +52,24 @@ def logout():
 def me():
     if "user_id" not in session:
         return jsonify(ok=False, error="Not logged in"), 401
-    return jsonify(ok=True, id=session["user_id"], role=session["role"])
+    conn = get_db()
+    try:
+        if session.get("role") == "student":
+            row = conn.execute(
+                "SELECT FirstName, LastName, MiddleInitial, Status FROM Student WHERE StudentID = ?",
+                (session["user_id"],),
+            ).fetchone()
+        else:
+            row = conn.execute(
+                "SELECT LibrarianName FROM Librarian WHERE LibrarianID = ?",
+                (session["user_id"],),
+            ).fetchone()
+    finally:
+        conn.close()
+    if row is None:                      # the account no longer exists
+        session.clear()
+        return jsonify(ok=False, error="Not logged in"), 401
+    return jsonify(ok=True, id=session["user_id"], role=session["role"], **dict(row))
 
 
 def _clean_contacts(raw):
@@ -68,12 +85,14 @@ def _clean_contacts(raw):
 
 @auth_bp.post("/register")
 def register():
-    d = request.get_json() or {}
+    d = request.get_json(silent=True) or {}
     sid = str(d.get("student_id", "")).strip()
     last = str(d.get("last_name", "")).strip()
     first = str(d.get("first_name", "")).strip()
     dob = str(d.get("date_of_birth", "")).strip()
     password = str(d.get("password", ""))
+    middle = str(d.get("middle_initial") or "").strip()[:1].upper() or None
+    address = str(d.get("address") or "").strip() or None
 
     if not all([sid, last, first, dob, password]):
         return jsonify(ok=False, error="Missing required fields"), 400
@@ -81,9 +100,11 @@ def register():
     try:
         if len(dob) != 10:
             raise ValueError
-        date.fromisoformat(dob)
+        dob_date = date.fromisoformat(dob)
     except ValueError:
         return jsonify(ok=False, error="date_of_birth must be a valid date (YYYY-MM-DD)"), 400
+    if dob_date > date.today():
+        return jsonify(ok=False, error="date_of_birth cannot be in the future"), 400
 
     contacts, err = _clean_contacts(d.get("contact_numbers"))
     if err:
@@ -91,14 +112,25 @@ def register():
 
     conn = get_db()
     try:
-        if len(dob) != 10:
-            raise ValueError
-        dob_date = date.fromisoformat(dob)
-    except ValueError:
-        return jsonify(ok=False, error="date_of_birth must be a valid date (YYYY-MM-DD)"), 400
+        conn.execute(
+            "INSERT INTO Student (StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, PasswordHash) "
+            "VALUES (?, ?, ?, ?, ?, ?, ?)",
+            (sid, last, first, middle, address, dob, generate_password_hash(password)),
+        )
+        conn.executemany(
+            "INSERT INTO StudentContact (StudentID, ContactNo) VALUES (?, ?)",
+            [(sid, n) for n in sorted(contacts)],
+        )
+        conn.commit()
+    except sqlite3.IntegrityError as e:
+        conn.rollback()
+        if "Student.StudentID" in str(e):
+            return jsonify(ok=False, error="Student ID already registered"), 409
+        raise
+    finally:
+        conn.close()
+    return jsonify(ok=True), 201
 
-    if dob_date > date.today():
-        return jsonify(ok=False, error="date_of_birth cannot be in the future"), 400
 
 @auth_bp.post("/librarian/register")
 def register_librarian():

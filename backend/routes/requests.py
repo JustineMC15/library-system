@@ -1,23 +1,19 @@
 from flask import Blueprint, jsonify, session
+
+import clock
+from calendar_db import load_nonworking
 from db import get_db
 from decorators import student_required
+from loans import student_loans
 
 requests_bp = Blueprint("requests", __name__, url_prefix="/api")
 
+
 @requests_bp.get("/student/loans")
 @student_required
-def student_loans():
+def my_loans():
     conn = get_db()
-    rows = conn.execute(
-        """
-        SELECT Borrow.BorrowID, Borrow.BookID, Book.BookTitle, Book.BookAuthor,
-               Borrow.Status, Borrow.BorrowDate,
-               CASE WHEN Borrow.Status = 'Borrowed' THEN Book.DigitalLink END AS DigitalLink
-        FROM Borrow
-        JOIN Book ON Book.BookID = Borrow.BookID
-        WHERE Borrow.StudentID = ? AND Borrow.Status IN ('Pending', 'Borrowed')
-        """,
-        (session["user_id"],),
-    ).fetchall()
-    conn.close()
-    return jsonify([dict(r) for r in rows])
+    try:
+        return jsonify(student_loans(conn, session["user_id"], clock.now().date(), load_nonworking(conn)))
+    finally:
+        conn.close()
