@@ -23,6 +23,7 @@
     <section class="card" aria-label="My books">
       <div class="tabs" role="tablist">
         <button type="button" role="tab" id="tab-books" aria-selected="true" class="active">Borrowed</button>
+        <button type="button" role="tab" id="tab-history" aria-selected="false">History</button>
         <button type="button" role="tab" id="tab-denied" aria-selected="false">Denied <span class="count" id="denied-count"></span></button>
       </div>
 
@@ -31,6 +32,15 @@
           <table>
             <thead><tr><th>Title</th><th>Type</th><th>Borrowed</th><th>Due</th><th>Status</th><th>Actions</th></tr></thead>
             <tbody id="loans"><tr><td colspan="6" class="empty loading">Loading your books…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div id="panel-history" role="tabpanel" aria-labelledby="tab-history" hidden>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Title</th><th>Type</th><th>Borrowed</th><th>Returned</th><th>Fine</th><th>Status</th></tr></thead>
+            <tbody id="history"><tr><td colspan="6" class="empty loading">Loading…</td></tr></tbody>
           </table>
         </div>
       </div>
@@ -45,7 +55,7 @@
       </div>
     </section>
 
-    <p class="muted">After Renew or Return is clicked, a librarian must approve it.</p>
+    <p class="muted">Physical books are returned at the library desk, and a librarian marks them returned. Fines keep counting until then. Renewals and e-book returns need a librarian's approval.</p>
   </main>
 
   <script src="../js/api.js"></script>
