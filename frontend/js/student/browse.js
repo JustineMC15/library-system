@@ -6,7 +6,7 @@ let timer;
 function card(b) {
   return `
     <a class="book-card" href="book.html?id=${encodeURIComponent(b.BookID)}">
-      ${coverHtml(b)}
+      ${coverHtml(b, "L")}
       <div class="title">${esc(b.BookTitle)}</div>
       <div class="meta">${esc(b.BookAuthor)}</div>
       <div class="foot">${badge(b.BookType)} ${availabilityBadge(b)}</div>

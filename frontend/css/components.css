@@ -153,8 +153,8 @@ tr.first .pos { background: var(--navy); color: var(--white); border-color: var(
 .deny-card p { margin-bottom: 8px; }
 
 /* Book covers (Figma: Browse Books, Browse A Book). Real cover image, or a plain titled cover. */
-.cover { aspect-ratio: 4 / 3; border-radius: var(--radius); overflow: hidden; background: #E2E8F0; }
-.cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.cover { aspect-ratio: 3 / 4; border-radius: var(--radius); overflow: hidden; background: #F1F5F9; }
+.cover img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .cover-fallback {
   width: 100%; height: 100%; padding: 16px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
   background: var(--indigo); color: var(--white); text-align: center;
