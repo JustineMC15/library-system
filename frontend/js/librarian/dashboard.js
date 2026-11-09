@@ -92,30 +92,84 @@ function renderQueue() {
     : emptyRow(6, tab ? `No pending ${TYPE[tab].toLowerCase()} requests.` : "No pending requests.");
 }
 
+/* Transaction history: every decided borrow, renew and return, and which librarian handled it.
+   The search, period, type and sort all run here in the page, on the rows from GET /librarian/history. */
+let historyRows = [];
+let period = "";
+const CODE_PREFIX = { borrow: "BOR", renew: "REN", return: "RET" };
+const historyCode = (h) => `${CODE_PREFIX[h.type] || "REQ"}-${h.request_id}`;
+const librarianName = (h) => h.LibrarianName || h.LibrarianID || "None";
+
+function inPeriod(dateTime) {
+  if (!period) return true;
+  const d = new Date(String(dateTime).replace(" ", "T"));
+  const now = new Date();
+  if (period === "day") return iso(d) === iso(now);
+  if (period === "year") return d.getFullYear() === now.getFullYear();
+  if (period === "month") return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  // "week": Monday through Sunday of the current week
+  const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+  const nextMonday = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + 7);
+  return d >= monday && d < nextMonday;
+}
+
+function applyHistory() {
+  const words = $("h-search").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const type = $("h-type").value;
+  const rows = historyRows
+    .filter((h) => (!type || h.type === type) && inPeriod(h.RequestedAt))
+    .filter((h) => {
+      const text = [historyCode(h), h.StudentName, h.StudentID, h.BookTitle, h.BookID, h.LibrarianName, h.LibrarianID, h.Status, h.type]
+        .join(" ").toLowerCase();
+      return words.every((w) => text.includes(w));
+    })
+    .sort((a, b) => {
+      const order = String(a.RequestedAt).localeCompare(String(b.RequestedAt));
+      return $("h-sort").value === "oldest" ? order : -order;
+    });
+
+  $("h-count").textContent = `${plural(rows.length, "transaction")} shown`;
+  $("rows").innerHTML = rows.length
+    ? rows.map((h) => `
+        <tr>
+          <td>${esc(historyCode(h))}</td>
+          <td>${badge(TYPE[h.type] || h.type, "slate")}</td>
+          <td>${student(h)}</td>
+          <td>${esc(h.BookTitle)}</td>
+          <td>${fmtDate(h.RequestedAt, true)}</td>
+          <td>${badge(h.Status)}</td>
+          <td>${esc(librarianName(h))}</td>
+        </tr>`).join("")
+    : emptyRow(7, historyRows.length ? "No transactions match these filters." : "No past requests yet.");
+}
+
 async function renderHistory() {
-  $("thead").innerHTML = "<tr><th>Request</th><th>Student</th><th>Book</th><th>Date</th><th>Result</th><th>Librarian</th></tr>";
-  $("rows").innerHTML = emptyRow(6, "Loading history…", true);
+  $("thead").innerHTML = "<tr><th>Code</th><th>Type</th><th>Student</th><th>Book</th><th>Date</th><th>Result</th><th>Handled by</th></tr>";
+  $("rows").innerHTML = emptyRow(7, "Loading history…", true);
   try {
-    const rows = await API.history();
-    $("rows").innerHTML = rows.length
-      ? rows.map((h) => `
-          <tr>
-            <td>${badge(TYPE[h.type] || h.type, "slate")}</td>
-            <td>${student(h)}</td>
-            <td>${esc(h.BookTitle)}</td>
-            <td>${fmtDate(h.RequestedAt, true)}</td>
-            <td>${badge(h.Status)}</td>
-            <td>${esc(h.LibrarianID || "None")}</td>
-          </tr>`).join("")
-      : emptyRow(6, "No past requests yet.");
+    historyRows = await API.history();
+    applyHistory();
   } catch (err) {
-    $("rows").innerHTML = emptyRow(6, err.message);
+    $("h-count").textContent = "";
+    $("rows").innerHTML = emptyRow(7, err.message);
   }
 }
 
 function render() {
+  $("history-tools").classList.toggle("hidden", tab !== "history");
   return tab === "history" ? renderHistory() : renderQueue();
 }
+
+$("h-search").addEventListener("input", applyHistory);
+$("h-type").addEventListener("change", applyHistory);
+$("h-sort").addEventListener("change", applyHistory);
+$("h-period").addEventListener("click", (e) => {
+  const btn = e.target.closest("button[data-period]");
+  if (!btn) return;
+  period = btn.dataset.period;
+  $("h-period").querySelectorAll("button").forEach((b) => b.setAttribute("aria-pressed", String(b === btn)));
+  applyHistory();
+});
 
 $("tabs").addEventListener("click", (e) => {
   const btn = e.target.closest("button[data-tab]");

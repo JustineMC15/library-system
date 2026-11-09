@@ -182,3 +182,9 @@ tr.first .pos { background: var(--navy); color: var(--white); border-color: var(
 .cal button.picked { outline: 2px solid var(--blue); outline-offset: 1px; }
 .details-table tr:last-child th, .details-table tr:last-child td { border-bottom: 1px solid #94A3B8; }
 .reason-pick button[aria-pressed="true"] { background: var(--gold); border-color: var(--gold); color: var(--text); }
+
+/* Transaction history filters on the librarian dashboard */
+.history-tools { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.history-row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.history-row input { flex: 1 1 240px; width: auto; }
+.history-row select { width: auto; }
