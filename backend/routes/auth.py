@@ -3,10 +3,10 @@ from datetime import date
 from flask import Blueprint, request, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
 from db import get_db
+from decorators import librarian_required
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/api")
-
 
 @auth_bp.post("/login")
 def login():
@@ -133,6 +133,7 @@ def register():
 
 
 @auth_bp.post("/librarian/register")
+@librarian_required
 def register_librarian():
     d = request.get_json() or {}
     lid = str(d.get("librarian_id", "")).strip()
@@ -157,3 +158,4 @@ def register_librarian():
     finally:
         conn.close()
     return jsonify(ok=True), 201
+
