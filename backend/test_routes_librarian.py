@@ -126,17 +126,18 @@ def test_stats():
 
 
 def test_overdue_list():
-    make_env()
-    s3, lib = login("student", "S3"), login("librarian", "L1")
+    path = make_env()
+    lib = login("librarian", "L1")
     assert lib.get("/api/librarian/overdue").get_json() == [{
         "BorrowID": 1, "StudentID": "S3", "StudentName": "LastS3, Test Q.", "BookTitle": "Book 6",
         "DueDate": "2026-10-28", "DaysLate": 5, "Fine": 10,
     }]
 
-    # a return requested on Monday Nov 2 stops the count at 4 working days, even though today is Nov 3
-    clock.now = lambda: datetime(2026, 11, 2, 10, 0, 0)
-    assert s3.post("/api/return", json={"BorrowID": 1}).status_code == 201
-    clock.now = lambda: NOW
+    conn = sqlite3.connect(path)
+    conn.execute('INSERT INTO "Return" (BorrowID, RequestedAt, Status) VALUES (1, ?, \'Pending\')',
+                 ("2026-11-02 10:00:00",))
+    conn.commit()
+    conn.close()
     overdue = lib.get("/api/librarian/overdue").get_json()
     assert overdue[0]["DaysLate"] == 4 and overdue[0]["Fine"] == 8
 
@@ -168,6 +169,8 @@ def test_history_lists_only_decided_requests():
         ("borrow", "S1", "Approved"), ("borrow", "S2", "Denied"), ("renew", "S4", "Denied"),
     ]
     assert all(h["LibrarianID"] == "L1" for h in new)
+    assert all(h["LibrarianName"] == "Lib One" for h in new)
+    assert {h["BookID"] for h in new} == {"B1", "B2", "B3"}
     assert rows[0]["RequestedAt"].startswith("2026-11-03")          # newest first
     assert {h["StudentName"] for h in new} == {"LastS1, Test Q.", "LastS2, Test Q.", "LastS4, Test Q."}
 

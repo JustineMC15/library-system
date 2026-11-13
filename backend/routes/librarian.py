@@ -111,8 +111,9 @@ def history():
         names = _student_names(conn)
         rows = conn.execute(
             f"""
-            SELECT * FROM (
-                SELECT 'borrow' AS type, b.BorrowID AS request_id, b.StudentID, bk.BookTitle,
+            SELECT h.*, l.LibrarianName
+            FROM (
+                SELECT 'borrow' AS type, b.BorrowID AS request_id, b.StudentID, b.BookID, bk.BookTitle,
                        b.RequestedAt,
                        CASE b.Status WHEN 'Denied' THEN 'Denied' ELSE 'Approved' END AS Status,
                        b.LibrarianID
@@ -122,7 +123,8 @@ def history():
 
                 UNION ALL
 
-                SELECT 'renew', r.RenewID, b.StudentID, bk.BookTitle, r.RequestedAt, r.Status, r.LibrarianID
+                SELECT 'renew', r.RenewID, b.StudentID, b.BookID, bk.BookTitle,
+                       r.RequestedAt, r.Status, r.LibrarianID
                 FROM Renew AS r
                 JOIN Borrow AS b ON b.BorrowID = r.BorrowID
                 JOIN Book AS bk ON bk.BookID = b.BookID
@@ -130,14 +132,16 @@ def history():
 
                 UNION ALL
 
-                SELECT 'return', r.ReturnID, b.StudentID, bk.BookTitle, r.RequestedAt, r.Status, r.LibrarianID
+                SELECT 'return', r.ReturnID, b.StudentID, b.BookID, bk.BookTitle,
+                       r.RequestedAt, r.Status, r.LibrarianID
                 FROM "Return" AS r
                 JOIN Borrow AS b ON b.BorrowID = r.BorrowID
                 JOIN Book AS bk ON bk.BookID = b.BookID
                 WHERE r.Status != 'Pending'
-            )
-            WHERE (:t IS NULL OR type = :t)
-            ORDER BY RequestedAt DESC, type, request_id DESC
+            ) AS h
+            LEFT JOIN Librarian AS l ON l.LibrarianID = h.LibrarianID
+            WHERE (:t IS NULL OR h.type = :t)
+            ORDER BY h.RequestedAt DESC, h.type, h.request_id DESC
             LIMIT {HISTORY_LIMIT}
             """,
             {"t": type_filter},

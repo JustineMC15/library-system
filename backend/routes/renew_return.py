@@ -50,13 +50,26 @@ def renew():
 @renew_return_bp.post("/return")
 @student_required
 def return_book():
-    """A student asks to return a borrowed book. For an e-book, access ends right away."""
+    """A student asks to return an e-book. Physical books go back at the library desk."""
     borrow_id = whole_number(pick(json_body(), "BorrowID", "borrow_id"))
     if borrow_id is None:
         return jsonify(ok=False, error="BorrowID is required"), 400
 
     conn = get_db()
     try:
+        book = conn.execute(
+            """
+            SELECT bk.BookType
+            FROM Borrow AS b
+            JOIN Book AS bk ON bk.BookID = b.BookID
+            WHERE b.BorrowID = ? AND b.StudentID = ? AND b.Status = 'Borrowed'
+            """,
+            (borrow_id, session["user_id"]),
+        ).fetchone()
+        # No row means not this student's loan: request_return answers "not found" (404)
+        if book is not None and book["BookType"] != "Digital":
+            return jsonify(ok=False, error="Physical books are returned at the library desk"), 409
+
         result = request_return(conn, session["user_id"], borrow_id, clock.now())
         if not result["ok"]:
             return jsonify(result), _status_for(result["error"])
