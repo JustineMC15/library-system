@@ -1,7 +1,7 @@
 /* api.js: the only file that talks to the backend.
    Load order on every page: api.js, ui.js, layout.js, then the page's own script.
 
-   (exists)  the route is in the backend (some only on the jhasmine-auth branch so far)
+   (exists)  the route is in the backend
    (needed)  the route the page expects; until it exists the page shows
              "This feature isn't connected to the backend yet." instead of breaking.
    Field names follow the database columns in backend/schema.sql. */
@@ -11,7 +11,7 @@ const API = {
   login: (role, id, password) => request("POST", "/api/login", { role, id, password }),   // (exists)
   logout: () => request("POST", "/api/logout"),                                             // (exists)
   me: () => request("GET", "/api/me"),                                                      // (exists)
-  // (needed) also return the person's name so pages greet them by name, not by ID:
+  // (exists) also returns the person's name so pages greet them by name, not by ID:
   //   students:   FirstName, LastName, MiddleInitial, Status ("Active" | "Suspended")
   //   librarians: LibrarianName
   registerStudent: (data) => request("POST", "/api/register", data),                        // (exists)
@@ -23,48 +23,50 @@ const API = {
   book: (bookId) => request("GET", "/api/books/" + encodeURIComponent(bookId)),             // (exists)
 
   // ----- Calendar (any logged-in user, used to preview due dates) -----
-  nonworking: () => request("GET", "/api/nonworking"),                                      // (needed)
+  nonworking: () => request("GET", "/api/nonworking"),                                      // (exists)
   // -> [{ NonWorkingDate, Reason, LibrarianID }]
 
   // ----- Student -----
   myLoans: () => request("GET", "/api/student/loans"),                                      // (exists)
-  // (needed) extra fields per row: BookType, RequestedAt, DueDate, Renewals, PendingRenew, PendingReturn, Fine
-  requestBorrow: (bookId) => request("POST", "/api/borrow", { book_id: bookId }),           // (needed)
-  requestRenew: (borrowId) => request("POST", "/api/renew", { borrow_id: borrowId }),       // (needed)
-  requestReturn: (borrowId) => request("POST", "/api/return", { borrow_id: borrowId }),     // (needed)
-  myDenied: () => request("GET", "/api/student/denied"),                                    // (needed)
+  // (exists) extra fields per row: BookType, RequestedAt, DueDate, Renewals, PendingRenew, PendingReturn, Fine
+  requestBorrow: (bookId) => request("POST", "/api/borrow", { BookID: bookId }),           // (exists)
+  requestRenew: (borrowId) => request("POST", "/api/renew", { borrow_id: borrowId }),       // (exists)
+  requestReturn: (borrowId) => request("POST", "/api/return", { borrow_id: borrowId }),     // (exists)
+  myHistory: () => request("GET", "/api/student/history"),                                  // (needed)
+  // -> [{ BorrowID, BookID, BookTitle, BookType, BorrowDate, ReturnDate, Status, FineAmount, FinePaidDate }]  newest first
+  myDenied: () => request("GET", "/api/student/denied"),                                    // (exists)
   // -> [{ BorrowID, BookID, BookTitle, RequestedAt, LibrarianID, reasons: [...], FineOwed }]
 
   // ----- Librarian: dashboard and queue (borrowing.get_queue) -----
-  stats: () => request("GET", "/api/librarian/stats"),                                      // (needed)
+  stats: () => request("GET", "/api/librarian/stats"),                                      // (exists)
   // -> { borrows_today, returns_today, overdue }
-  overdue: () => request("GET", "/api/librarian/overdue"),                                  // (needed)
+  overdue: () => request("GET", "/api/librarian/overdue"),                                  // (exists)
   // -> [{ BorrowID, StudentID, StudentName, BookTitle, DueDate, DaysLate, Fine }]  most overdue first
-  queue: (type) => request("GET", "/api/librarian/queue" + query({ type })),                // (needed)
+  queue: (type) => request("GET", "/api/librarian/queue" + query({ type })),                // (exists)
   // -> [{ type: "borrow"|"renew"|"return", request_id, BorrowID, StudentID, StudentName,
   //       BookID, BookTitle, RequestedAt, DueDate }]  oldest first
-  history: (type) => request("GET", "/api/librarian/history" + query({ type })),            // (needed)
+  history: (type) => request("GET", "/api/librarian/history" + query({ type })),            // (exists)
   // -> [{ type, StudentID, StudentName, BookTitle, RequestedAt, Status, LibrarianID }]
-  approve: (type, id, data = {}) => request("POST", `/api/librarian/${type}/${id}/approve`, data), // (needed)
+  approve: (type, id, data = {}) => request("POST", `/api/librarian/${type}/${id}/approve`, data), // (exists)
   // borrow: data = { student_id_ok: true }
-  deny: (type, id, data = {}) => request("POST", `/api/librarian/${type}/${id}/deny`, data),       // (needed)
+  deny: (type, id, data = {}) => request("POST", `/api/librarian/${type}/${id}/deny`, data),       // (exists)
   // borrow: data = { reasons: ["Unpaid fines", ...] }
 
   // ----- Librarian: one student (Verify Student, Process Return) -----
-  student: (studentId) => request("GET", "/api/librarian/students/" + encodeURIComponent(studentId)), // (needed)
+  student: (studentId) => request("GET", "/api/librarian/students/" + encodeURIComponent(studentId)), // (exists)
   // -> { StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, Status,
   //      contacts: [...], FineOwed, checks: { ...checks.run_checks() },
   //      loans: [{ BorrowID, BookID, BookTitle, BorrowDate, DueDate }],      (currently borrowed)
   //      pending: [{ BorrowID, BookID, BookTitle, RequestedAt }] }           (pending borrow requests)
-  payFines: (studentId) => request("POST", `/api/librarian/students/${encodeURIComponent(studentId)}/pay-fines`), // (needed)
-  processReturn: (borrowId, returnDate) =>                                                  // (needed)
+  payFines: (studentId) => request("POST", `/api/librarian/students/${encodeURIComponent(studentId)}/pay-fines`), // (exists)
+  processReturn: (borrowId, returnDate) =>                                                  // (exists)
     request("POST", "/api/librarian/returns", { borrow_id: borrowId, return_date: returnDate }),
   // -> { ok, FineAmount }  (also closes the student's pending return request, if any)
 
   // ----- Librarian: non-working days -----
-  addNonworking: (date, reason) => request("POST", "/api/librarian/nonworking", { date, reason }), // (needed)
-  removeNonworking: (date) => request("DELETE", "/api/librarian/nonworking/" + date),       // (needed)
-  nonworkingImpact: (date) => request("GET", "/api/librarian/nonworking/impact" + query({ date })), // (needed)
+  addNonworking: (date, reason) => request("POST", "/api/librarian/nonworking", { date, reason }), // (exists)
+  removeNonworking: (date) => request("DELETE", "/api/librarian/nonworking/" + date),       // (exists)
+  nonworkingImpact: (date) => request("GET", "/api/librarian/nonworking/impact" + query({ date })), // (exists)
   // -> { borrowed_affected: 4 }
 };
 
