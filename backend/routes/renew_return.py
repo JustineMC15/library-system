@@ -201,7 +201,7 @@ def student_detail(student_id):
             dict(r)
             for r in conn.execute(
                 """
-                SELECT b.BorrowID, b.BookID, bk.BookTitle, b.RequestedAt
+                SELECT b.BorrowID, b.BookID, bk.BookTitle, bk.BookType, b.BorrowDate,
                 FROM Borrow AS b
                 JOIN Book AS bk ON bk.BookID = b.BookID
                 WHERE b.StudentID = ? AND b.Status = 'Pending'

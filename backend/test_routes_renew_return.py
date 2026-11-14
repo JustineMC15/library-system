@@ -212,13 +212,6 @@ def test_student_detail_for_verify_and_return_pages():
     assert app.test_client().get("/api/librarian/students/S4").status_code == 401
 
 
-if __name__ == "__main__":
-    tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
-    for t in tests:
-        t()
-        print("ok  ", t.__name__)
-    print(f"All {len(tests)} renew/return route tests passed!")
-
 def test_physical_return_must_go_through_the_desk():
     make_env()
     s3, lib = login("student", "S3"), login("librarian", "L1")
@@ -253,3 +246,19 @@ def test_student_history_route():
 
     assert app.test_client().get("/api/student/history").status_code == 401
     assert lib.get("/api/student/history").status_code == 403
+
+def test_desk_cannot_return_an_ebook_without_a_request():
+    path = make_env()
+    lib = login("librarian", "L1")
+    borrow_id = add_digital_loan(path, "S2")
+    r = lib.post("/api/librarian/returns", json={"BorrowID": borrow_id})
+    assert r.status_code == 409
+    assert row(path, "SELECT Status FROM Borrow WHERE BorrowID = ?", (borrow_id,))[0]["Status"] == "Borrowed"
+
+
+if __name__ == "__main__":
+    tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
+    for t in tests:
+        t()
+        print("ok  ", t.__name__)
+    print(f"All {len(tests)} renew/return route tests passed!")

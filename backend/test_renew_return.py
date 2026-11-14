@@ -34,7 +34,7 @@ def one(conn, sql, params=()):
     return conn.execute(sql, params).fetchone()
 
 
-# ---------- request_renew ----------
+#  request_renew 
 
 def test_renew_ok():
     conn = make_clean_db()
@@ -89,7 +89,7 @@ def test_renew_and_return_block_each_other():
     assert request_renew(conn, STUDENT, 1, NOV3, NONE)["error"] == "A return request is already pending"
 
 
-# ---------- approve and deny renew ----------
+#  approve and deny renew 
 
 def test_approve_renew_resets_due_date():
     conn = make_clean_db()
@@ -124,7 +124,7 @@ def test_deny_renew():
     assert request_renew(conn, STUDENT, 1, NOV3, NONE)["ok"] is True      # can ask again
 
 
-# ---------- request, approve and deny return ----------
+#  request, approve and deny return 
 
 def test_return_request_and_duplicate():
     conn = make_clean_db()
@@ -165,7 +165,7 @@ def test_deny_return_keeps_book_borrowed():
     assert request_return(conn, STUDENT, 1, NOV3)["ok"] is True          # can ask again
 
 
-# ---------- process_return (desk) ----------
+#  process_return (desk) 
 
 def test_process_return_desk_without_request():
     conn = make_clean_db()
@@ -209,8 +209,19 @@ def test_return_closes_a_pending_renewal():
     assert one(conn, "SELECT Status FROM Renew WHERE RenewID = ?", (renew_id,))["Status"] == "Denied"
     assert get_queue(conn) == []
 
+def test_process_return_ebook_needs_a_student_request():
+    conn = make_clean_db()
+    add_digital_loan(conn)
+    r = process_return(conn, 4, LIBRARIAN, date(2026, 11, 3), NONE)
+    assert r == {"ok": False, "error": "An e-book can only be returned after the student requests it"}
+    assert one(conn, "SELECT Status FROM Borrow WHERE BorrowID = 4")["Status"] == "Borrowed"
+    assert one(conn, 'SELECT COUNT(*) FROM "Return" WHERE BorrowID = 4')[0] == 0
 
-# ---------- fines ----------
+    request_return(conn, STUDENT, 4, NOV3)
+    r = process_return(conn, 4, LIBRARIAN, date(2026, 11, 5), NONE)
+    assert r["ok"] is True and r["ReturnDate"] == "2026-11-03"
+
+#  fines 
 
 def test_unpaid_fine_blocks_until_paid():
     conn = make_clean_db()
@@ -227,8 +238,8 @@ def test_unpaid_fine_blocks_until_paid():
 
 def test_pay_student_fines_pays_everything_owed():
     conn = make_clean_db()
-    process_return(conn, 1, LIBRARIAN, date(2026, 11, 5), NONE)           # fine 4
-    process_return(conn, 2, LIBRARIAN, date(2026, 11, 3), NONE)           # no fine
+    process_return(conn, 1, LIBRARIAN, date(2026, 11, 5), NONE)
+    process_return(conn, 2, LIBRARIAN, date(2026, 11, 3), NONE)
     assert fine_owed(conn, STUDENT) == 4
     assert pay_student_fines(conn, STUDENT, date(2026, 11, 5)) == {"ok": True, "paid_count": 1}
     assert fine_owed(conn, STUDENT) == 0
@@ -242,7 +253,7 @@ def test_pay_fine_errors():
     assert pay_fine(conn, return_id, date(2026, 11, 3))["error"] == "There is no fine to pay"
 
 
-# ---------- student_loans ----------
+#  student_loans 
 
 def add_digital_loan(conn):
     conn.execute(
