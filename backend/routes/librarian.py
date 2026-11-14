@@ -12,8 +12,7 @@ from working_days import days_overdue, fine
 librarian_bp = Blueprint("librarian_dashboard", __name__, url_prefix="/api/librarian")
 
 HISTORY_TYPES = ("borrow", "renew", "return")
-HISTORY_LIMIT = 200
-
+HISTORY_LIMIT = 5000
 
 def _student_names(conn):
     """StudentID -> 'Last, First M.' (same format as the queue)."""
@@ -97,7 +96,7 @@ def overdue():
 @librarian_bp.get("/history")
 @librarian_required
 def history():
-    """Requests a librarian already decided (the History tab), newest request first.
+    """Requests a librarian already decided (the History tab), newest decision first.
 
     Status is shown as Approved or Denied. A borrow that was approved is Borrowed or
     Returned in the Borrow table, and both mean Approved here. ?type=borrow|renew|return
@@ -109,12 +108,13 @@ def history():
     conn = get_db()
     try:
         names = _student_names(conn)
-        rows = conn.execute(
+                rows = conn.execute(
             f"""
             SELECT h.*, l.LibrarianName
             FROM (
                 SELECT 'borrow' AS type, b.BorrowID AS request_id, b.StudentID, b.BookID, bk.BookTitle,
                        b.RequestedAt,
+                       substr(COALESCE(b.BorrowDate, b.RequestedAt), 1, 10) AS DecidedAt,
                        CASE b.Status WHEN 'Denied' THEN 'Denied' ELSE 'Approved' END AS Status,
                        b.LibrarianID
                 FROM Borrow AS b
@@ -124,7 +124,9 @@ def history():
                 UNION ALL
 
                 SELECT 'renew', r.RenewID, b.StudentID, b.BookID, bk.BookTitle,
-                       r.RequestedAt, r.Status, r.LibrarianID
+                       r.RequestedAt,
+                       substr(COALESCE(r.RenewalDate, r.RequestedAt), 1, 10),
+                       r.Status, r.LibrarianID
                 FROM Renew AS r
                 JOIN Borrow AS b ON b.BorrowID = r.BorrowID
                 JOIN Book AS bk ON bk.BookID = b.BookID
@@ -133,7 +135,9 @@ def history():
                 UNION ALL
 
                 SELECT 'return', r.ReturnID, b.StudentID, b.BookID, bk.BookTitle,
-                       r.RequestedAt, r.Status, r.LibrarianID
+                       r.RequestedAt,
+                       substr(COALESCE(r.ReturnDate, r.RequestedAt), 1, 10),
+                       r.Status, r.LibrarianID
                 FROM "Return" AS r
                 JOIN Borrow AS b ON b.BorrowID = r.BorrowID
                 JOIN Book AS bk ON bk.BookID = b.BookID
@@ -141,7 +145,7 @@ def history():
             ) AS h
             LEFT JOIN Librarian AS l ON l.LibrarianID = h.LibrarianID
             WHERE (:t IS NULL OR h.type = :t)
-            ORDER BY h.RequestedAt DESC, h.type, h.request_id DESC
+            ORDER BY h.DecidedAt DESC, h.RequestedAt DESC, h.type, h.request_id DESC
             LIMIT {HISTORY_LIMIT}
             """,
             {"t": type_filter},

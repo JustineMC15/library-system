@@ -9,12 +9,12 @@ SCHEMA = BASE_DIR / "schema.sql"
 BOOKS_CSV = BASE_DIR.parent / "data" / "books.csv"
 
 # (StudentID, LastName, FirstName, MiddleInitial, Address, DateOfBirth, ContactNo)
-# Edit these to your real names; the IDs and dates are made up.
+# Phone numbers are made up
 STUDENTS = [
-    ("25A-0058", "Taroy", "Justine", "", "Marikina City", "2007-01-05", "09170000001"),
-    ("25A-1058", "Casas", "Jhasmine", "", "Marikina City", "2007-01-06", "09170000002"),
-    ("25A-2058", "Encio", "Ambrichie", "", "Marikina City", "2007-01-07", "09170000003"),
-    ("25A-3058", "Zafra", "Jabez", "", "Marikina City", "2007-01-08", "09170000004"),
+    ("25A-0058", "Taroy", "Justine Raine", "J", "Marikina City", "2007-01-05", "09170000001"),
+    ("25A-0026", "Casas", "Jhasmine", "", "Marikina City", "2006-12-16", "09170000002"),
+    ("24A-0117", "Encio", "Ambrichie Rose", "M.", "San Mateo, Rizal", "2006-12-31", "09170000003"),
+    ("25A-0014", "Zafra", "Jabez", "S.", "Marikina City", "2006-10-07", "09170000004"),
 ]
 
 

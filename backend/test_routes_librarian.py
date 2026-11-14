@@ -179,6 +179,25 @@ def test_history_lists_only_decided_requests():
     assert lib.get(url + "?type=return").get_json() == []
     assert lib.get(url + "?type=bogus").status_code == 400
 
+def test_history_decided_at_uses_decision_date_with_request_fallback():
+    make_env()
+    s1, s2, lib = login("student", "S1"), login("student", "S2"), login("librarian", "L1")
+
+    b1 = request_book(s1, "B1").get_json()["BorrowID"]
+    lib.post(f"/api/librarian/borrow/{b1}/approve", json={"student_id_ok": True})   # approved Nov 3
+
+    clock.now = lambda: datetime(2026, 11, 2, 15, 0, 0)                              # requested the day before
+    b2 = request_book(s2, "B2").get_json()["BorrowID"]
+    clock.now = lambda: NOW
+    lib.post(f"/api/librarian/borrow/{b2}/deny", json={"reasons": ["Unpaid fines"]})
+
+    rows = lib.get("/api/librarian/history").get_json()
+    decided = {(h["type"], h["request_id"]): h["DecidedAt"] for h in rows}
+    assert decided[("borrow", b1)] == "2026-11-03"       # BorrowDate
+    assert decided[("borrow", b2)] == "2026-11-02"       # denied: falls back to the request date
+    assert decided[("borrow", 1)] == "2026-10-20"        # seeded loan: its BorrowDate, not Oct 1
+    dates = [h["DecidedAt"] for h in rows]
+    assert dates == sorted(dates, reverse=True)           # newest decision first
 
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
