@@ -59,10 +59,12 @@ function row(l) {
       <td>
         <div class="actions">
           ${read}
-          <button type="button" class="btn small secondary" data-renew="${l.BorrowID}" ${pending || block ? "disabled" : ""}>Renew</button>
+          ${state === "late" ? "" /* overdue books can't be renewed (backend rule), so no button at all */
+            : `<button type="button" class="btn small secondary" data-renew="${l.BorrowID}" ${pending || block ? "disabled" : ""}>Renew</button>`}
           ${returnAction}
         </div>
-        ${block && !pending ? `<div class="why">${block}</div>` : ""}
+        ${state === "late" && !pending ? `<div class="why">Overdue books can't be renewed.</div>`
+          : block && !pending ? `<div class="why">${block}</div>` : ""}
         ${deskNote}
       </td>
     </tr>`;
