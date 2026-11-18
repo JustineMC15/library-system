@@ -14,7 +14,7 @@
       <div class="page-head">
         <div>
           <h1>Process Return</h1>
-          <p>Process a physical book return.</p>
+          <p>Process a physical book return, or approve an e-book return the student requested.</p>
         </div>
       </div>
 
@@ -36,7 +36,8 @@
           </div>
           <div class="field">
             <label for="ReturnDate">Return Date</label>
-            <input id="ReturnDate" type="date">
+            <input id="ReturnDate" type="date" aria-describedby="date-help">
+            <p class="help" id="date-help"></p>
           </div>
         </section>
 
