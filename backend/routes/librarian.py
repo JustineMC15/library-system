@@ -108,7 +108,7 @@ def history():
     conn = get_db()
     try:
         names = _student_names(conn)
-                rows = conn.execute(
+        rows = conn.execute(
             f"""
             SELECT h.*, l.LibrarianName
             FROM (

@@ -15,7 +15,7 @@ Fundamentals of DB group project: HTML, CSS, JavaScript, Python (Flask) and SQLi
 
 Dummy logins (made by seed.py, for testing only):
 
-* Students: IDs `25A-0058, 25A-1058, 25A-2058, 25A-3058`, password `student123`
+* Students: IDs `25A-0058, 25A-0026, 24A-0117, 25A-0014`, password `student123`
 * Librarian: ID `L-001`, password `librarian123`
 
 ## Who edits what

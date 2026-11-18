@@ -183,7 +183,7 @@ def student_detail(student_id):
         loans = []
         for r in conn.execute(
             """
-            SELECT b.BorrowID, b.BookID, bk.BookTitle, b.BorrowDate,
+            SELECT b.BorrowID, b.BookID, bk.BookTitle, bk.BookType, b.BorrowDate,
                    (SELECT rt.RequestedAt FROM "Return" AS rt
                      WHERE rt.BorrowID = b.BorrowID AND rt.Status = 'Pending') AS ReturnRequestedAt
             FROM Borrow AS b
@@ -201,7 +201,7 @@ def student_detail(student_id):
             dict(r)
             for r in conn.execute(
                 """
-                SELECT b.BorrowID, b.BookID, bk.BookTitle, bk.BookType, b.BorrowDate,
+                SELECT b.BorrowID, b.BookID, bk.BookTitle, b.RequestedAt
                 FROM Borrow AS b
                 JOIN Book AS bk ON bk.BookID = b.BookID
                 WHERE b.StudentID = ? AND b.Status = 'Pending'
