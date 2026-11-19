@@ -6,10 +6,12 @@ from routes.requests import requests_bp
 from routes.borrow import borrow_bp
 from routes.verify import verify_bp
 from routes.renew_return import renew_return_bp
+from routes.nonworking import nonworking_bp
+from routes.librarian import librarian_bp
 
 # static_folder makes Flask hand out the pages in frontend/, so the site and the data share one address
 app = Flask(__name__, static_folder=str(FRONTEND_DIR), static_url_path="")
-app.secret_key = "change-this-before-submission"   # needed later for login sessions
+app.secret_key = "on-the-revolutions-of-the-heavenly-spheres"   # needed later for login sessions
 
 app.register_blueprint(books_bp)
 app.register_blueprint(auth_bp)                    # add each new routes/ file here
@@ -17,7 +19,8 @@ app.register_blueprint(requests_bp)
 app.register_blueprint(borrow_bp)
 app.register_blueprint(verify_bp)
 app.register_blueprint(renew_return_bp)
-
+app.register_blueprint(nonworking_bp)
+app.register_blueprint(librarian_bp)
 
 @app.route("/")
 def home():

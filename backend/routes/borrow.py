@@ -5,6 +5,7 @@ from borrowing import request_borrow
 from db import get_db
 from decorators import student_required
 from routes.helpers import CHECK_ORDER, json_body, pick
+from returns import fine_owed
 
 borrow_bp = Blueprint("borrow", __name__, url_prefix="/api")
 
@@ -57,6 +58,7 @@ def student_denied():
             (session["user_id"],),
         ):
             reasons.setdefault(r["BorrowID"], []).append(r["Reason"])
+        owed = fine_owed(conn, session["user_id"])
     finally:
         conn.close()
 
@@ -64,5 +66,6 @@ def student_denied():
     for row in rows:
         item = dict(row)
         item["reasons"] = sorted(reasons.get(row["BorrowID"], []), key=CHECK_ORDER.index)
+        item["FineOwed"] = owed
         result.append(item)
     return jsonify(result)

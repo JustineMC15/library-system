@@ -53,6 +53,35 @@
           <button type="button" role="tab" data-tab="return" aria-selected="false">Return</button>
           <button type="button" role="tab" data-tab="history" aria-selected="false">History</button>
         </div>
+
+        <div id="history-tools" class="history-tools hidden" role="search" aria-label="Filter transaction history">
+          <div class="history-row">
+            <label for="h-search" class="visually-hidden">Search transactions</label>
+            <input id="h-search" type="search" placeholder="Search student, book, librarian or code">
+            <label for="h-type" class="visually-hidden">Transaction type</label>
+            <select id="h-type">
+              <option value="">All types</option>
+              <option value="borrow">Borrow</option>
+              <option value="renew">Renew</option>
+              <option value="return">Return</option>
+            </select>
+            <label for="h-sort" class="visually-hidden">Sort order</label>
+            <select id="h-sort">
+              <option value="newest">Newest first</option>
+              <option value="oldest">Oldest first</option>
+            </select>
+          </div>
+          <div class="history-row">
+            <div class="segmented" id="h-period" role="group" aria-label="Time period">
+              <button type="button" data-period="" aria-pressed="true">All time</button>
+              <button type="button" data-period="day" aria-pressed="false">Today</button>
+              <button type="button" data-period="week" aria-pressed="false">This week</button>
+              <button type="button" data-period="month" aria-pressed="false">This month</button>
+              <button type="button" data-period="year" aria-pressed="false">This year</button>
+            </div>
+            <span class="muted" id="h-count" aria-live="polite"></span>
+          </div>
+        </div>
         <div class="table-wrap">
           <table>
             <thead id="thead"></thead>

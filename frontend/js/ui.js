@@ -144,7 +144,7 @@ function coverPlaceholder(book) {
     <span>${esc(book.BookTitle)}</span><small>${esc(book.BookAuthor || "")}</small></div>`;
 }
 
-function coverHtml(book, size = "M") {
+function coverHtml(book, size = "L") {
   const isbn = String(book.BookISBN || "").replace(/[^0-9X]/gi, "");
   const fallback = coverPlaceholder(book);
   if (!isbn) return `<div class="cover">${fallback}</div>`;

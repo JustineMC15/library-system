@@ -340,6 +340,27 @@ def test_register_and_me():
     lib = login("librarian", "L1")
     assert lib.get("/api/me").get_json()["LibrarianName"] == "Lib One"
 
+def test_register_librarian_needs_librarian_login():
+    path = make_env()
+    url = "/api/librarian/register"
+    body = {"librarian_id": "L2", "librarian_name": "Lib Two", "password": "secret1"}
+    assert app.test_client().post(url, json=body).status_code == 401
+    assert login("student", "S1").post(url, json=body).status_code == 403
+    lib = login("librarian", "L1")
+    assert lib.post(url, json=body).status_code == 201
+    assert lib.post(url, json=body).status_code == 409
+    assert row(path, "SELECT LibrarianName FROM Librarian WHERE LibrarianID = 'L2'")[0]["LibrarianName"] == "Lib Two"
+
+
+def test_denied_shows_fine_owed():
+    make_env()
+    s3, lib = login("student", "S3"), login("librarian", "L1")
+    assert lib.post("/api/librarian/returns", json={"BorrowID": 1}).get_json()["FineAmount"] == 10
+    borrow_id = request_book(s3, "B1").get_json()["BorrowID"]
+    lib.post(f"/api/librarian/borrow/{borrow_id}/deny", json={"reasons": ["Unpaid fines"]})
+    assert s3.get("/api/student/denied").get_json()[0]["FineOwed"] == 10
+    lib.post("/api/librarian/students/S3/pay-fines")
+    assert s3.get("/api/student/denied").get_json()[0]["FineOwed"] == 0
 
 if __name__ == "__main__":
     tests = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]

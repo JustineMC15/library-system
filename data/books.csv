@@ -2,3 +2,60 @@ BookID,BookISBN,BookTitle,BookAuthor,PublishYear,BookType,DigitalLink
 CIR QA 76.73 C15 W463 1993,0-8053-5440-9,Data Structures and Algorithm Analysis in C,Mark Allen Weiss,1993,Physical,
 FIL QA 76.7 L926,978-981-4416-40-5,Programming Languages,Kenneth C. Louden; Kenneth A. Lambert,2012,Physical,
 QA 76.76.O63 K96,978-93-5014-589-0,Operating Systems,Naveen Kumari,2016,Physical,
+CIR QA 76.7 F86,978-1-63549-794-6,Fundamentals of Programming Languages,Chris Chancellor,2018,Physical,
+CIR QA 76.73 C15 L32,1-55622-188-6,Graphic User Interface Programming with C,Robert F. Ladymon,1992,Physical,
+CIR QA 76.9.A25 D277,978-0-12-804722-4,Cyber Security Awareness for Accountants and CPA's,Henry Dalziel David Wilson,2016,Physical,
+CIR QA 76.73.P98 M946b,978-1-119-45789-3,Beginning Programming with Python,John Paul Mueller,2018,Physical,
+CIR QA 76.5 T396,978-1-68095-795-2,Computer Applications,"3F E-learning LLC, USA",2017,Physical,
+CIR QA 76.9 E53 S75,0-471-53218-5,Computing Concepts for End Users,"John Wiley & Sons, Inc.",1990,Physical,
+CIR QA 76.9.A43 G959,978-93-5014-118-2,Algorithm Analysis and Design,For S.K. Kataria & Sons®,2012,Physical,
+CIR QA 76.64 R495 2002,0-7356-1568-3,OOP with Microsoft Visual Basic .Net and Microsoft Visual C# .Net,Robin A. Reynolds-Haertle,1959,Physical,
+CIR QA 152.2 L37,0-669-28298-7,Algebra and Trigonometry Third Edition,Roland E. Larson;Robert P. Hostetler,1993,Physical,
+CIR QA 76.5 T87,0-07-881929-6,PC’s Made Easy Second Edition,James L. Turley,1993,Physical,
+QA 76.9 S6556,978-0-470-93166-0,Computer Forensic Jumpstart 2 edition,"Michael G. Solomon;K Rudolph;Ed Tittel;Niel Broom;Diane Barrett",2011,Physical,
+QA 76.9 D3 B74,007-124650-9,Introduction to Database Systems,Stéphane Bressan;Barbara Catania,2005,Physical,
+CIR QA 76.5 S2193,0-07-115851-0,Using Information Technology Brief Version,Stacey C. Sawyer;Brian K. Williams;Sarah E. Hutchinson,1999,Physical,
+QA 141.5 R57,0-201-81749-7,Making Numbers Make Sense A sourcebook for developing numeracy,Ron Ritchhart,1994,Physical,
+QA 76.6 A27,978-1-119-36302-6,Coding all-in-one for dummies,Nikhil Abraham et al.,2017,Physical,
+CIR QA 76.76.M478,978-1-305-67425-7,Understanding Operating Systems,Ann McIver Mchoes,2018,Physical,
+CIR QA 76.9 M262,978-1-138-5938-4,Big Data for Managers Creating value,Atal Malviya; Mike Malmgren,2019,Physical,
+CIR QA 76.75 S633,0-471-95854-9,Software Process,Alfonso Fuggetta;Alexander Wolf,1996,Physical,
+CIR QA 76.73 S64,987-1-285-86740-3,Programming Logic and Design,Jo Ann Smith,2015,Physical,
+CIR QA 76.758 S65,0-201-42765-6,Software Engineering,Ian Sommerville,1995,Physical,
+CIR QA 76.758 S65,978-981-0696-17-7,Software Engineering,Sommerville,2011,Physical,
+CIR QA 76.73 B869,978-971-27-3247-8,Advanced C++ For Engineering and Scientist,Gary J. Bronson,2016,Physical,
+CIR QA 76.76.H49.M478,978-1-394-26290-8,HTML & CSS Essentials for Dummies,Paul McFredies,2024,Physical,
+CIR QA 76.8 A83 T94,1-85058-217-3,Real-time 3D Graphics for the Atari St a practice guide to 6800 assembler programming,Andrew Tyler,1991,Physical,
+CIR QA 76.9.M45 L9131,1-56884-362-3,Memories Management for Dummies Quick Reference,Doug Lowe,1995,Physical,
+CIR QA 76.73 S65 S38,20-2400-1001,SQLRouter to Informix PC-to-informix Connectivity Software,Gupta,1992,Physical,
+CIR QA 76.5 O44,0-07-012567-8,Brief Edition Computing Essentials,Irwin McGraw-Hill,1998-999,Physical,
+DIG-001,978-1-951693-63-3,Introduction to Computer Science using Java,Bradley Kjell,2022,Digital,https://math.hws.edu/javanotes/
+DIG-002,978-1-61614-518-7,Think Python: How to Think Like a Computer Scientist,Allen B. Downey,2015,Digital,https://greenteapress.com/wp/think-python-2e/
+DIG-003,978-0-262-51087-5,Structure and Interpretation of Computer Programs,"Harold Abelson, Gerald Jay Sussman",1996,Digital,https://mitpress.mit.edu/sites/default/files/sicp/index.html
+DIG-004,978-1-118-29027-9,Introduction to Algorithms (Selected Topics),Thomas H. Cormen,2013,Digital,https://archive.org/details/introduction-to-algorithms-3rd-edition
+DIG-005,978-0-321-57351-3,Algorithms,"Robert Sedgewick, Kevin Wayne",2011,Digital,https://algs4.cs.princeton.edu/home/
+DIG-006,978-1-4920-5630-1,Designing Data-Intensive Applications,Martin Kleppmann,2017,Digital,https://archive.org/details/designing-data-intensive-applications
+DIG-007,978-1-4493-5573-9,Learning Python,Mark Lutz,2013,Digital,https://archive.org/details/learningpython5th_201912
+DIG-008,978-1-59327-603-4,Python Crash Course,Eric Matthes,2015,Digital,https://archive.org/details/python-crash-course-eric-matthes
+DIG-009,978-0-13-110362-7,The C Programming Language,"Brian W. Kernighan, Dennis M. Ritchie",1988,Digital,https://archive.org/details/the-c-programming-language-2nd-edition
+DIG-010,978-0-13-235088-4,Clean Code: A Handbook of Agile Software Craftsmanship,Robert C. Martin,2008,Digital,https://archive.org/details/cleancodehandboo0000mart
+DIG-011,978-0-201-61622-4,The Pragmatic Programmer,"Andrew Hunt, David Thomas",1999,Digital,https://archive.org/details/pragmaticprogramm00hunt
+DIG-012,978-0-201-63361-0,Design Patterns: Elements of Reusable Object-Oriented Software,"Erich Gamma, Richard Helm, Ralph Johnson, John Vlissides",1994,Digital,https://archive.org/details/designpatternsel00gamm
+DIG-013,978-0-521-88068-8,"Information Theory, Inference, and Learning Algorithms",David J.C. MacKay,2003,Digital,https://www.inference.org.uk/itprnn/book.html
+DIG-014,978-1-4398-3598-2,The Architecture of Open Source Applications,"Amy Brown, Greg Wilson",2011,Digital,https://aosabook.org/en/index.html
+DIG-015,978-0-262-03384-8,Introduction to Autonomous Mobile Robots,"Roland Siegwart, Illah R. Nourbakhsh",2004,Digital,https://archive.org/details/introductiontoau0000sieg
+DIG-016,978-0-07-352340-8,Introduction to the Theory of Computation,Michael Sipser,2012,Digital,https://archive.org/details/introductiontot000sips
+DIG-017,978-1-118-06333-0,Operating System Concepts,"Abraham Silberschatz, Peter B. Galvin, Greg Gagne",2012,Digital,https://os-book.com/
+DIG-018,978-0-13-600663-4,Artificial Intelligence: A Modern Approach,"Stuart Russell, Peter Norvig",2009,Digital,https://archive.org/details/artificialintell0000russ_u1u6
+DIG-019,978-1-4614-7137-0,An Introduction to Statistical Learning,"Gareth James, Daniela Witten, Trevor Hastie, Robert Tibshirani",2013,Digital,https://www.statlearning.com/
+DIG-020,978-0-262-03561-3,Deep Learning,"Ian Goodfellow, Yoshua Bengio, Aaron Courville",2016,Digital,https://www.deeplearningbook.org/
+DIG-021,978-1-4920-3264-9,Fluent Python,Luciano Ramalho,2015,Digital,https://archive.org/details/fluent-python
+DIG-022,978-0-13-409341-3,Computer Networking: A Top-Down Approach,"James F. Kurose, Keith W. Ross",2016,Digital,https://archive.org/details/computer-networking-a-top-down-approach-7th-edition
+DIG-023,978-0-13-239227-3,Programming Pearls,Jon Bentley,1999,Digital,https://archive.org/details/programmingpearl0000bent
+DIG-024,978-0-13-117705-5,Working Effectively with Legacy Code,Michael Feathers,2004,Digital,https://archive.org/details/workingeffective0000feat
+DIG-025,978-0-321-12742-6,Patterns of Enterprise Application Architecture,Martin Fowler,2002,Digital,https://archive.org/details/patternsofenterp0000fowl
+DIG-026,978-0-13-597444-5,The Mythical Man-Month,Frederick P. Brooks Jr.,1995,Digital,https://archive.org/details/mythicalmanmonth00broo_0
+DIG-027,978-1-59327-220-3,The Linux Command Line,William Shotts,2012,Digital,https://linuxcommand.org/tlcl.php
+DIG-028,978-0-13-142901-7,Core Java Volume I–Fundamentals,Cay S. Horstmann,2018,Digital,https://archive.org/details/corejavavolumeif0000hors_j3w8
+DIG-029,978-0-321-35668-0,Effective Java,Joshua Bloch,2008,Digital,https://archive.org/details/effectivejava0000bloc_e8o7
+DIG-030,978-1-118-53164-8,Operating System Concepts Essentials,"Abraham Silberschatz, Peter B. Galvin, Greg Gagne",2013,Digital,https://archive.org/details/operatingsystemc0000silb_v3y6

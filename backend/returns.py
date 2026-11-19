@@ -223,15 +223,16 @@ def process_return(conn, borrow_id, librarian_id, return_date, nonworking):
 
     If the student already has a pending return request, that request is approved
     (its request date decides the fine). Otherwise an already-approved return is
-    created with the date the librarian picked.
+    created with the date the librarian picked. A digital book needs that pending request.
     """
 
     borrow = conn.execute(
         """
-        SELECT BorrowDate
-        FROM Borrow
-        WHERE BorrowID = ?
-          AND Status = 'Borrowed'
+        SELECT b.BorrowDate, bk.BookType
+        FROM Borrow AS b
+        JOIN Book AS bk ON bk.BookID = b.BookID
+        WHERE b.BorrowID = ?
+          AND b.Status = 'Borrowed'
         """,
         (borrow_id,)
     ).fetchone()
@@ -251,7 +252,8 @@ def process_return(conn, borrow_id, librarian_id, return_date, nonworking):
 
     if pending is not None:
         return approve_return(conn, pending["ReturnID"], librarian_id, nonworking)
-
+    if borrow["BookType"] == "Digital":
+        return {"ok": False, "error": "An e-book can only be returned after the student requests it"}
     if return_date < date.fromisoformat(borrow["BorrowDate"]):
         return {"ok": False, "error": "The return date is before the borrow date"}
 

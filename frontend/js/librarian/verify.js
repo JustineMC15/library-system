@@ -115,6 +115,10 @@ function renderRequests() {
 function updateDecision() {
   const allPass = DENY_REASONS.every((r) => marks[r] === "pass");
   const undecided = DENY_REASONS.filter((r) => !marks[r]);
+  // Pass all can't override a failed check: clear the Fail first (or deny the request)
+  const anyFailed = DENY_REASONS.some((r) => marks[r] === "fail");
+  $("pass-all").disabled = anyFailed;
+  $("pass-all").title = anyFailed ? "A check is marked Fail, so Pass all is off." : "";
   $("approve").disabled = !requestId || !allPass;
   $("deny").disabled = !requestId;
   $("approve-why").textContent = !requestId ? ""
