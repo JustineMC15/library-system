@@ -93,16 +93,19 @@ function renderQueue() {
 }
 
 /* Transaction history: every decided borrow, renew and return, and which librarian handled it.
-   The search, period, type and sort all run here in the page, on the rows from GET /librarian/history. */
+   The search, period, type and sort all run here in the page, on the rows from GET /librarian/history.
+   Period and sort use the decision date (DecidedAt), as the instructor asked, not the request date. */
 let historyRows = [];
+let shownHistory = [];   // exactly the rows on screen after the filters: what Export CSV saves
 let period = "";
 const CODE_PREFIX = { borrow: "BOR", renew: "REN", return: "RET" };
 const historyCode = (h) => `${CODE_PREFIX[h.type] || "REQ"}-${h.request_id}`;
 const librarianName = (h) => h.LibrarianName || h.LibrarianID || "None";
+const decidedOn = (h) => String(h.DecidedAt || h.RequestedAt || "").slice(0, 10);
 
-function inPeriod(dateTime) {
+function inPeriod(dateOnly) {
   if (!period) return true;
-  const d = new Date(String(dateTime).replace(" ", "T"));
+  const d = new Date(`${dateOnly}T00:00`);   // date only, read as local time
   const now = new Date();
   if (period === "day") return iso(d) === iso(now);
   if (period === "year") return d.getFullYear() === now.getFullYear();
@@ -117,17 +120,19 @@ function applyHistory() {
   const words = $("h-search").value.trim().toLowerCase().split(/\s+/).filter(Boolean);
   const type = $("h-type").value;
   const rows = historyRows
-    .filter((h) => (!type || h.type === type) && inPeriod(h.RequestedAt))
+    .filter((h) => (!type || h.type === type) && inPeriod(decidedOn(h)))
     .filter((h) => {
       const text = [historyCode(h), h.StudentName, h.StudentID, h.BookTitle, h.BookID, h.LibrarianName, h.LibrarianID, h.Status, h.type]
         .join(" ").toLowerCase();
       return words.every((w) => text.includes(w));
     })
     .sort((a, b) => {
-      const order = String(a.RequestedAt).localeCompare(String(b.RequestedAt));
+      const order = decidedOn(a).localeCompare(decidedOn(b)) || String(a.RequestedAt).localeCompare(String(b.RequestedAt));
       return $("h-sort").value === "oldest" ? order : -order;
     });
 
+  shownHistory = rows;
+  $("h-export").disabled = !rows.length;
   $("h-count").textContent = `${plural(rows.length, "transaction")} shown`;
   $("rows").innerHTML = rows.length
     ? rows.map((h) => `
@@ -137,23 +142,50 @@ function applyHistory() {
           <td>${student(h)}</td>
           <td>${esc(h.BookTitle)}</td>
           <td>${fmtDate(h.RequestedAt, true)}</td>
+          <td>${fmtDate(decidedOn(h))}</td>
           <td>${badge(h.Status)}</td>
           <td>${esc(librarianName(h))}</td>
         </tr>`).join("")
-    : emptyRow(7, historyRows.length ? "No transactions match these filters." : "No past requests yet.");
+    : emptyRow(8, historyRows.length ? "No transactions match these filters." : "No past requests yet.");
 }
 
 async function renderHistory() {
-  $("thead").innerHTML = "<tr><th>Code</th><th>Type</th><th>Student</th><th>Book</th><th>Date</th><th>Result</th><th>Handled by</th></tr>";
-  $("rows").innerHTML = emptyRow(7, "Loading history…", true);
+  $("thead").innerHTML = "<tr><th>Code</th><th>Type</th><th>Student</th><th>Book</th><th>Requested</th><th>Decided</th><th>Result</th><th>Handled by</th></tr>";
+  $("rows").innerHTML = emptyRow(8, "Loading history…", true);
+  $("h-export").disabled = true;
   try {
     historyRows = await API.history();
     applyHistory();
   } catch (err) {
+    shownHistory = [];
     $("h-count").textContent = "";
-    $("rows").innerHTML = emptyRow(7, err.message);
+    $("rows").innerHTML = emptyRow(8, err.message);
   }
 }
+
+// Export CSV: exactly the rows left on screen after the filters, in the same order
+function exportHistory() {
+  const cell = (v) => {
+    const s = String(v ?? "");
+    return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  };
+  const header = ["Code", "Type", "Student ID", "Student", "Book ID", "Book", "Requested", "Decided", "Result", "Librarian ID", "Librarian"];
+  const lines = shownHistory.map((h) => [
+    historyCode(h), TYPE[h.type] || h.type, h.StudentID, h.StudentName, h.BookID, h.BookTitle,
+    h.RequestedAt, decidedOn(h), h.Status, h.LibrarianID, h.LibrarianName,
+  ].map(cell).join(","));
+  // The BOM makes Excel read names with ñ correctly
+  const csv = "﻿" + [header.join(","), ...lines].join("\r\n");
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+  link.download = `library-history-${todayIso()}${period ? "-" + period : ""}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(link.href), 1000);
+  showAlert("alert", `Exported ${plural(shownHistory.length, "transaction")} to ${link.download}.`, "success");
+}
+$("h-export").addEventListener("click", exportHistory);
 
 function render() {
   $("history-tools").classList.toggle("hidden", tab !== "history");

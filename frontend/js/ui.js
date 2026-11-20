@@ -336,11 +336,21 @@ function confirmDialog({ title, body = "", confirm = "Confirm", cancel = "Cancel
       </div>`;
     document.body.appendChild(dlg);
     let result = false;
+    let done = false;
+    // Finish right on the button click; the "close" event (Escape, click outside) is only a fallback,
+    // because browsers can delay it while the page isn't being drawn
+    const finish = () => {
+      if (done) return;
+      done = true;
+      if (dlg.open) dlg.close();
+      dlg.remove();
+      resolve(result);
+    };
     dlg.addEventListener("click", (e) => {
       const b = e.target.closest("button[data-v]");
-      if (b) { result = b.dataset.v === "1"; dlg.close(); }
+      if (b) { result = b.dataset.v === "1"; finish(); }
     });
-    dlg.addEventListener("close", () => { dlg.remove(); resolve(result); });
+    dlg.addEventListener("close", finish);
     dlg.showModal();
     dlg.querySelector('[data-v="1"]').focus();
   });
