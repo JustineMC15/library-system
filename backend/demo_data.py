@@ -19,7 +19,7 @@ from working_days import days_overdue, due_date, fine, is_working_day, working_d
 NOW = clock.now()
 TODAY = NOW.date()
 
-TAROYY, CASAS, ENCIO, ZAFRA = "25A-0058", "25A-0026", "24A-0117", "25A-0014"
+TAROY, CASAS, ENCIO, ZAFRA = "25A-0058", "25A-0026", "24A-0117", "25A-0014"
 L1, L2 = "L-001", "L-002"
 
 # Real national holidays. Only the ones still ahead of today are added.
